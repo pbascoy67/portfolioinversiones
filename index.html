@@ -1,0 +1,2121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio de Inversiones</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome para íconos modernos (Opcional: Puedes eliminar si no se usa en otras partes) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-papDQ7nEYZK1t6cZ3l7iTcnMVmJN69s5JxRtyxxG7sB2lM7h+oS3Xc1bN8pQX5mLXaYgLgU2j6ht5KX6fh5f7g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- SheetJS para exportar a Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Chart.js plugin para data labels (mostrar % en las porciones) -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
+  <style>
+    :root {
+      --primary: #2980b9;        /* Azul fuerte */
+      --secondary: #1e1e2f;     /* Tonalidad oscura */
+      --accent: #8e44ad;
+      --success: #2ecc71;
+      --danger: #e74c3c;
+      --light: #ffe8dd;         /* Coral suave */
+      --dark: #2c2c3e;
+      --text-light: #ecf0f1;
+      --font-family: 'Poppins', sans-serif;
+    }
+
+    /* Reinicios básicos */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: var(--light);
+      color: var(--dark);
+      font-family: var(--font-family);
+      line-height: 1.4;
+    }
+
+    header {
+      background: var(--secondary);
+      color: var(--text-light);
+      padding: 1.5rem;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    header h1 {
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    main {
+      padding: 1.5rem;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    footer {
+      background: var(--secondary);
+      color: var(--text-light);
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+
+    /* Filtros */
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .filter-group label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--secondary);
+    }
+    .filter-group select,
+    .filter-group input[type="month"] {
+      padding: 0.6rem;
+      border: 1px solid var(--dark);
+      border-radius: 4px;
+      font-size: 1rem;
+      color: var(--dark);
+    }
+
+    /* Botones */
+    .actions-top,
+    .actions-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+    .actions-top button,
+    .actions-bottom button {
+      padding: 0.75rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      background-color: var(--primary);
+      color: var(--text-light);
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+    .actions-top button:hover,
+    .actions-bottom button:hover {
+      background-color: #1f6690; 
+    }
+
+    /* Resumen */
+    .summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .summary-section {
+      flex: 0 0 48%;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      padding: 1rem;
+    }
+    .summary-section h3 {
+      margin-bottom: 1rem;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.95rem;
+    }
+    .summary-label {
+      font-weight: 500;
+      color: var(--dark);
+    }
+    .summary-value {
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    /* Tabla */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+    th, td {
+      padding: 0.9rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: var(--primary);
+      color: var(--text-light);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+    tr:hover td {
+      background: #f8f8f8;
+    }
+    .number-cell {
+      text-align: right;
+    }
+
+    /* Formularios */
+    .form-section {
+      display: none;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-section.visible {
+      display: block;
+    }
+    .form-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 180px;
+    }
+    .form-group label {
+      font-weight: 500;
+      margin-bottom: 0.3rem;
+      color: var(--secondary);
+    }
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="date"],
+    .form-group select {
+      padding: 0.6rem;
+      border: 1px solid var(--dark);
+      border-radius: 4px;
+      font-size: 0.95rem;
+    }
+    .form-actions {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 1rem;
+    }
+    .form-actions button {
+      padding: 0.65rem 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: var(--primary);
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.95rem;
+      transition: background-color 0.3s ease;
+    }
+    .form-actions button:hover {
+      background-color: #1f6690;
+    }
+    .cancel-button {
+      background-color: var(--danger);
+    }
+    .cancel-button:hover {
+      background-color: #c0392b;
+    }
+
+    /* Modales */
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+      overflow: auto; /* Permite scroll cuando es necesario */
+    }
+    .modal.visible {
+      display: block;
+    }
+    .modal-content {
+      background: #fff;
+      width: 80%;
+      max-width: 1000px;
+      margin: 5% auto;
+      padding: 1.5rem;
+      border-radius: 8px;
+      position: relative;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      max-height: 80vh; /* Altura máxima para permitir scroll */
+      overflow-y: auto;  /* Habilita scroll vertical */
+    }
+    .close-button {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.5rem 0.8rem;
+      background-color: var(--danger);
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .close-button:hover {
+      background-color: #c0392b;
+    }
+
+    /* Switch (toggle) */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+      margin-right: 8px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .4s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+
+    /* Configuración */
+    .config-section {
+      margin-bottom: 1rem;
+    }
+    .config-section h4 {
+      margin-bottom: 0.5rem;
+      color: var(--secondary);
+      font-weight: 600;
+    }
+    .config-list {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+    }
+    .config-list th, .config-list td {
+      padding: 0.6rem;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    .config-list th {
+      background-color: var(--primary);
+      color: #fff;
+    }
+    .config-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .config-actions button {
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      padding: 0.4rem 0.7rem;
+    }
+    .config-actions .edit-button {
+      background-color: var(--accent);
+    }
+    .config-actions .delete-button {
+      background-color: var(--danger);
+    }
+    .config-actions .edit-button:hover {
+      background-color: #722f81;
+    }
+    .config-actions .delete-button:hover {
+      background-color: #c0392b;
+    }
+
+    /* Icono Papelera */
+    .trash-icon {
+      width: 16px;
+      height: 16px;
+      fill: var(--danger);
+      cursor: pointer;
+    }
+
+    /* Ajustes Responsivo */
+    @media (max-width: 768px) {
+      .filters, 
+      .summary {
+        flex-direction: column;
+      }
+      #summaryPesos,
+      #summaryDolares {
+        flex: 0 0 100%;
+      }
+    }
+
+    /* Modal con 2 gráficos (dona) lado a lado */
+    .rendimiento-charts-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: space-around;
+      margin-top: 1.5rem;
+    }
+    .chart-box {
+      flex: 0 0 45%;
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .chart-box h4 {
+      margin-bottom: 1rem;
+      color: var(--secondary);
+      font-weight: 600;
+      text-align: center;
+    }
+    /* Reducir tamaño de los gráficos */
+    .chart-box canvas {
+      max-width: 300px;
+      max-height: 300px;
+      width: 100%;
+      height: auto;
+    }
+
+    /* Estilos para la columna de acciones */
+    .acciones {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn {
+      border: none;
+      padding: 0.5rem;
+      border-radius: 5px;
+      cursor: pointer;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      font-weight: bold;
+      font-size: 1rem;
+      width: 35px;
+      height: 35px;
+    }
+
+    .btn-edit {
+      background-color: var(--accent); /* Violeta para Editar */
+    }
+
+    .btn-edit:hover {
+      background-color: #6f42c1; /* Color más oscuro para hover */
+      transform: scale(1.05);
+    }
+
+    .btn-sell {
+      background-color: var(--success); /* Verde para Vender */
+    }
+
+    .btn-sell:hover {
+      background-color: #27ae60;
+      transform: scale(1.05);
+    }
+
+    .btn-delete {
+      background-color: var(--danger); /* Rojo para Eliminar */
+    }
+
+    .btn-delete:hover {
+      background-color: #c0392b;
+      transform: scale(1.05);
+    }
+
+    /* Ajustar la altura de las filas para acomodar los botones */
+    table tbody tr {
+      height: 50px; /* Ajusta según tus preferencias */
+    }
+
+    /* Asegurar que los botones estén centrados verticalmente */
+    .acciones .btn {
+      height: 35px;
+      width: 35px;
+    }
+
+    /* Estilos para data labels fuera del gráfico */
+    .chartjs-render-monitor {
+      max-width: 100%;
+      height: auto !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Portfolio de Inversiones</h1>
+  </header>
+
+  <main>
+    <div class="container">
+      <!-- FILTROS -->
+      <section class="filters">
+        <div class="filter-group">
+          <label for="monthYear">Mes/Año a analizar:</label>
+          <input 
+            type="month" 
+            id="monthYear"
+            onchange="actualizarTabla()"
+          >
+        </div>
+        <div class="filter-group">
+          <label for="viewModeSelect">Modo de Rendimiento:</label>
+          <select id="viewModeSelect" onchange="actualizarTabla()">
+            <option value="DEFAULT">Default</option>
+            <option value="MONTHLY">Mensual</option>
+            <option value="HISTORICAL">Histórico</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="origenFilter">Origen de Inversión:</label>
+          <select 
+            id="origenFilter"
+            onchange="actualizarTabla()"
+          >
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="tipoFilter">Tipo de Inversión:</label>
+          <select 
+            id="tipoFilter"
+            onchange="actualizarTabla()"
+          >
+            <option value="">Todos</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="monedaFilter">Moneda:</label>
+          <select 
+            id="monedaFilter"
+            onchange="actualizarTabla()"
+          >
+            <option value="">Todos</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- BOTONES PRINCIPALES -->
+      <div class="actions-top">
+        <button onclick="mostrarResultadosHistoricos()">Ver Rendimiento Histórico</button>
+        <button onclick="mostrarResultadosMensuales()">Ver Rendimiento Mensual</button>
+        <button onclick="mostrarConfiguracion()">Configuración</button>
+      </div>
+
+      <!-- RESUMEN -->
+      <section class="summary">
+        <div class="summary-section" id="summaryPesos">
+          <h3>Resumen en Pesos</h3>
+          <div id="summaryContentPesos"></div>
+        </div>
+        <div class="summary-section" id="summaryDolares">
+          <h3>Resumen en Dólares</h3>
+          <div id="summaryContentDolares"></div>
+        </div>
+      </section>
+
+      <!-- BOTONES SECUNDARIOS -->
+      <div class="actions-bottom">
+        <button onclick="mostrarFormulario()">Agregar Inversión</button>
+        <button onclick="mostrarValoresActuales()">Cargar Valores Actuales</button>
+        <button onclick="mostrarOperacionesCerradas()">Ver Operaciones Cerradas</button>
+        <button onclick="exportarExcel()">Exportar Portafolio Completo a Excel</button>
+        <button onclick="abrirModalRendimiento()">Mostrar Gráfico de Rendimiento</button>
+      </div>
+
+      <!-- Formulario Agregar/Editar Inversión -->
+      <section id="newInvestmentForm" class="form-section">
+        <form id="investmentForm" onsubmit="guardarInversion(event)">
+          <h3>Agregar / Editar Inversión</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fecha">Fecha de Adquisición:</label>
+              <input type="date" id="fecha" required>
+            </div>
+            <div class="form-group">
+              <label for="nombre">Nombre de la inversión:</label>
+              <input type="text" id="nombre" required placeholder="Ej: Tesla, Apple...">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="moneda">Moneda:</label>
+              <select id="moneda" required></select>
+            </div>
+            <div class="form-group">
+              <label for="cuotaparte">Q cuotaparte:</label>
+              <input type="number" id="cuotaparte" step="0.0000000001" min="0.0000000001" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="precio">Precio de compra:</label>
+              <input type="number" id="precio" step="0.0000000001" min="0.0000000001" required>
+            </div>
+            <div class="form-group">
+              <label for="origenInv">Origen:</label>
+              <select id="origenInv" required></select>
+            </div>
+            <div class="form-group">
+              <label for="tipoInv">Tipo:</label>
+              <select id="tipoInv" required></select>
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Guardar</button>
+            <button type="button" class="cancel-button" onclick="cancelarInversion()">Cancelar</button>
+          </div>
+          <input type="hidden" id="editIndex" value="-1">
+        </form>
+      </section>
+
+      <!-- Formulario Cargar Valores Actuales -->
+      <section id="currentValuesForm" class="form-section">
+        <form id="currentValuesFormContent">
+          <h3>Cargar Valores Actuales</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="currentValuesMonth">Mes/Año:</label>
+              <input type="month" id="currentValuesMonth" required>
+            </div>
+            <div class="form-group">
+              <label>
+                <input type="checkbox" id="monthClosed">
+                Mes Cerrado
+              </label>
+            </div>
+          </div>
+          <div id="currentValuesContent"></div>
+          <div class="form-actions">
+            <button type="button" onclick="guardarValoresActuales()" id="guardarValoresBtn">Guardar Valores</button>
+            <button type="button" onclick="exportarValoresActuales()" style="background-color: var(--accent);">Bajar a Excel</button>
+            <button type="button" class="cancel-button" onclick="cerrarValoresActuales()">Cancelar</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Formulario Venta de Inversión -->
+      <section id="saleForm" class="form-section">
+        <form id="ventaForm" onsubmit="procesarVenta(event)">
+          <h3>Venta de Inversión</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="nombreVenta">Nombre de inversión:</label>
+              <input type="text" id="nombreVenta" readonly>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="fechaVenta">Fecha de Venta:</label>
+              <input type="date" id="fechaVenta" required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="tipoVenta">Tipo de Venta:</label>
+              <select id="tipoVenta" onchange="toggleCuotaparteVenta()" required>
+                <option value="TOTAL">Total</option>
+                <option value="PARCIAL">Parcial</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cuotaparteVenta">Q cuotaparte a vender:</label>
+              <input type="number" id="cuotaparteVenta" step="0.0000000001" readonly min="0.0000000001">
+            </div>
+            <div class="form-group">
+              <label for="precioVenta">Precio de Venta:</label>
+              <input type="number" id="precioVenta" step="0.0000000001" required min="0.0000000001">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="submit">Confirmar Venta</button>
+            <button type="button" class="cancel-button" onclick="cancelarVenta()">Cancelar</button>
+          </div>
+          <input type="hidden" id="saleIndex" value="-1">
+        </form>
+      </section>
+
+      <!-- Modal Operaciones Cerradas -->
+      <div id="closedOperationsModal" class="modal">
+        <div class="modal-content">
+          <h3>Operaciones Cerradas</h3>
+          <table id="closedOperationsTable">
+            <thead>
+              <tr>
+                <th>Fecha Venta</th>
+                <th>Nombre Inversión</th>
+                <th>Moneda</th>
+                <th>Q cuotaparte</th>
+                <th>Precio Compra</th>
+                <th>Precio Venta</th>
+                <th>Resultado</th>
+              </tr>
+            </thead>
+            <tbody id="closedOperationsBody"></tbody>
+          </table>
+          <button class="close-button" onclick="cerrarModalOperaciones()">Cerrar</button>
+        </div>
+      </div>
+
+      <!-- Modal Resultados Mensuales -->
+      <div id="monthlyResultsModal" class="modal">
+        <div class="modal-content">
+          <h3>Resultados Mensuales</h3>
+          <div id="monthlyResultsContent"></div>
+          <button class="close-button" onclick="cerrarResultadosMensuales()">Cerrar</button>
+        </div>
+      </div>
+
+      <!-- Modal Resultados Históricos -->
+      <div id="historicalResultsModal" class="modal">
+        <div class="modal-content">
+          <h3>Resultados Históricos</h3>
+          <div id="historicalResultsContent"></div>
+          <button class="close-button" onclick="cerrarResultadosHistoricos()">Cerrar</button>
+        </div>
+      </div>
+
+      <!-- Modal Configuración -->
+      <div id="configModal" class="modal">
+        <div class="modal-content">
+          <h3>Configuración</h3>
+          <div class="config-section">
+            <h4>Origen de la Inversión</h4>
+            <table class="config-list" id="configOrigenTable">
+              <thead>
+                <tr>
+                  <th>Origen</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <button onclick="agregarConfig('origen')">Agregar Origen</button>
+          </div>
+          <div class="config-section">
+            <h4>Tipo de Inversión</h4>
+            <table class="config-list" id="configTipoTable">
+              <thead>
+                <tr>
+                  <th>Tipo</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <button onclick="agregarConfig('tipo')">Agregar Tipo</button>
+          </div>
+          <div class="config-section">
+            <h4>Moneda</h4>
+            <table class="config-list" id="configMonedaTable">
+              <thead>
+                <tr>
+                  <th>Moneda</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <button onclick="agregarConfig('moneda')">Agregar Moneda</button>
+          </div>
+          <button class="close-button" onclick="cerrarConfiguracion()">Cerrar</button>
+        </div>
+      </div>
+
+      <!-- Tabla Principal -->
+      <table id="portfolioTable">
+        <thead>
+          <tr>
+            <th>Fecha Adquisición</th>
+            <th>Nombre de la inversión</th>
+            <th>Moneda</th>
+            <th>Q cuotaparte</th>
+            <th>Precio de compra</th>
+            <th>Valor Inversión</th>
+            <th>Precio Cierre Último mes</th>
+            <th>Valor Actual</th>
+            <th>Diferencia</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="portfolioBody"></tbody>
+      </table>
+
+      <!-- Modal con 2 gráficos (dona) lado a lado -->
+      <div id="rendimientoModal" class="modal">
+        <div class="modal-content">
+          <h3>Gráfico de Rendimiento</h3>
+
+          <!-- Campo para definir Mes/Año en el gráfico -->
+          <div class="form-row">
+            <div class="form-group">
+              <label for="monthYearRendimiento">Mes/Año a analizar:</label>
+              <input type="month" id="monthYearRendimiento" onchange="generarGraficoRendimiento()">
+            </div>
+          </div>
+
+          <!-- Toggle switch Mensual / Histórico -->
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <label class="switch">
+              <input type="checkbox" id="toggleChartMode" onchange="generarGraficoRendimiento()" />
+              <span class="slider round"></span>
+            </label>
+            <div>
+              <!-- Por defecto: OFF -> 'Histórico', ON -> 'Mensual' -->
+              <span id="toggleChartLabel">Histórico</span>
+            </div>
+          </div>
+
+          <!-- Contenedor de los dos gráficos -->
+          <div class="rendimiento-charts-container">
+            <div class="chart-box">
+              <h4>Inversiones en PESOS</h4>
+              <!-- Gráfico más chico: 150x150 -->
+              <canvas id="chartPesos" width="150" height="150"></canvas>
+            </div>
+            <div class="chart-box">
+              <h4>Inversiones en DÓLARES</h4>
+              <!-- Gráfico más chico: 150x150 -->
+              <canvas id="chartDolares" width="150" height="150"></canvas>
+            </div>
+          </div>
+
+          <button class="close-button" onclick="cerrarGraficoRendimiento()">Cerrar</button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2024 Portfolio de Inversiones. Todos los derechos reservados.
+  </footer>
+
+  <!-- AQUÍ COMIENZA TODO EL JAVASCRIPT DE LA APLICACIÓN -->
+  <script>
+    /**************************************************************
+     * REGISTRO DE PLUGINS DE CHART.JS
+     **************************************************************/
+    Chart.register(ChartDataLabels);
+
+    /**************************************************************
+     * VARIABLES GLOBALES
+     **************************************************************/
+    let inversiones = [];
+    let operacionesCerradas = [];
+    let valoresMensuales = {};
+
+    let configOrigen = ["LOCAL","EXTRANJERO"];
+    let configTipo = ["ACCIONES","BONOS","FONDOS MUTUOS","CRIPTO"];
+    let configMoneda = ["PESOS","DOLARES"];
+
+    let totalesGlobal = null;
+
+    // Variables para los gráficos
+    let doughnutPesos = null;
+    let doughnutDolares = null;
+
+    // Colores para flechas, etc.
+    const successColor = getComputedStyle(document.documentElement).getPropertyValue('--success').trim();
+    const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--danger').trim();
+
+    /**************************************************************
+     * UTILIDADES
+     **************************************************************/
+    function escapeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    function formatNumber(num, decimals = 2) {
+      return Number(num).toFixed(decimals);
+    }
+    function formatCurrency(num, moneda='ARS') {
+      if (num === '-') return '-';
+      const options = { minimumFractionDigits: 2, maximumFractionDigits: 2 };
+      const f = new Intl.NumberFormat('es-AR', options).format(num);
+      return (moneda === 'DOLARES') ? 'U$D ' + f : '$ ' + f;
+    }
+    function calculatePercentage(actual, original) {
+      if (!original || original === 0) return null;
+      return ((actual - original) / original * 100).toFixed(2);
+    }
+    function getDifferenceArrow(isPositive) {
+      const arrowPath = isPositive ? 'M6 1l5 5H1l5-5' : 'M6 11L1 6h10l-5 5';
+      const fillColor = isPositive ? successColor : dangerColor;
+      return `<svg width="12" height="12" viewBox="0 0 12 12" style="display:inline-block; margin-left:4px;">
+                <path d="${arrowPath}" fill="${fillColor}"/>
+              </svg>`;
+    }
+    /* Se elimina getTrashIcon ya que ya no usamos íconos de Font Awesome para eliminar */
+
+    function getPreviousMonth(currentMonth) {
+      const [year, month] = currentMonth.split('-').map(Number);
+      let prevYear = year;
+      let prevMonth = month - 1;
+      if (prevMonth < 1) { prevMonth = 12; prevYear--; }
+      return `${prevYear}-${prevMonth < 10 ? '0' + prevMonth : prevMonth}`;
+    }
+    function calcularDiasDesdeHoy(fecha) {
+      // fecha en formato YYYY-MM-DD
+      const hoy = new Date();
+      const fechaInv = new Date(fecha);
+      const diffMs = hoy - fechaInv; // milisegundos
+      const diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+      return diffDias;
+    }
+
+    /**************************************************************
+     * LOCAL STORAGE
+     **************************************************************/
+    function cargarDatos(){
+      const storedInversiones = JSON.parse(localStorage.getItem('inversiones'));
+      const storedOperaciones = JSON.parse(localStorage.getItem('operacionesCerradas'));
+      const storedValores = JSON.parse(localStorage.getItem('valoresMensuales'));
+      const storedOrigen = JSON.parse(localStorage.getItem('configOrigen'));
+      const storedTipo = JSON.parse(localStorage.getItem('configTipo'));
+      const storedMoneda = JSON.parse(localStorage.getItem('configMoneda'));
+
+      if(storedInversiones) inversiones = storedInversiones;
+      if(storedOperaciones) operacionesCerradas = storedOperaciones;
+      if(storedValores) valoresMensuales = storedValores;
+      if(storedOrigen && storedOrigen.length > 0) configOrigen = storedOrigen;
+      if(storedTipo && storedTipo.length > 0) configTipo = storedTipo;
+      if(storedMoneda && storedMoneda.length > 0) configMoneda = storedMoneda;
+    }
+    function guardarDatos(){
+      localStorage.setItem('inversiones', JSON.stringify(inversiones));
+      localStorage.setItem('operacionesCerradas', JSON.stringify(operacionesCerradas));
+      localStorage.setItem('valoresMensuales', JSON.stringify(valoresMensuales));
+      localStorage.setItem('configOrigen', JSON.stringify(configOrigen));
+      localStorage.setItem('configTipo', JSON.stringify(configTipo));
+      localStorage.setItem('configMoneda', JSON.stringify(configMoneda));
+    }
+
+    /**************************************************************
+     * SELECTS & CONFIG
+     **************************************************************/
+    function actualizarSelects(){
+      const origenFilter = document.getElementById('origenFilter');
+      const origenInv = document.getElementById('origenInv');
+      const tipoFilter = document.getElementById('tipoFilter');
+      const tipoInv = document.getElementById('tipoInv');
+      const monedaFilter = document.getElementById('monedaFilter');
+      const moneda = document.getElementById('moneda');
+
+      origenFilter.innerHTML = '<option value="">Todos</option>';
+      origenInv.innerHTML = '';
+      tipoFilter.innerHTML = '<option value="">Todos</option>';
+      tipoInv.innerHTML = '';
+      monedaFilter.innerHTML = '<option value="">Todos</option>';
+      moneda.innerHTML = '';
+
+      configOrigen.forEach(o => {
+        const optF = document.createElement('option');
+        optF.value = o; optF.textContent = o;
+        origenFilter.appendChild(optF);
+
+        const optI = document.createElement('option');
+        optI.value = o; optI.textContent = o;
+        origenInv.appendChild(optI);
+      });
+
+      configTipo.forEach(t => {
+        const optF = document.createElement('option');
+        optF.value = t; optF.textContent = t;
+        tipoFilter.appendChild(optF);
+
+        const optI = document.createElement('option');
+        optI.value = t; optI.textContent = t;
+        tipoInv.appendChild(optI);
+      });
+
+      configMoneda.forEach(m => {
+        const optF = document.createElement('option');
+        optF.value = m; optF.textContent = m;
+        monedaFilter.appendChild(optF);
+
+        const optI = document.createElement('option');
+        optI.value = m; optI.textContent = m;
+        moneda.appendChild(optI);
+      });
+    }
+    function mostrarConfiguracion(){
+      actualizarConfigModal();
+      document.getElementById('configModal').classList.add('visible');
+    }
+    function cerrarConfiguracion(){
+      document.getElementById('configModal').classList.remove('visible');
+    }
+    function actualizarConfigModal(){
+      const configOrigenBody = document.querySelector('#configOrigenTable tbody');
+      const configTipoBody = document.querySelector('#configTipoTable tbody');
+      const configMonedaBody = document.querySelector('#configMonedaTable tbody');
+
+      configOrigenBody.innerHTML = '';
+      configOrigen.forEach((orig, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHTML(orig)}</td>
+          <td class="config-actions">
+            <button onclick="editarConfig('origen',${i})" class="edit-button">E</button>
+            <button onclick="eliminarConfig('origen',${i})" class="delete-button">B</button>
+          </td>
+        `;
+        configOrigenBody.appendChild(tr);
+      });
+
+      configTipoBody.innerHTML = '';
+      configTipo.forEach((tipo, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHTML(tipo)}</td>
+          <td class="config-actions">
+            <button onclick="editarConfig('tipo',${i})" class="edit-button">E</button>
+            <button onclick="eliminarConfig('tipo',${i})" class="delete-button">B</button>
+          </td>
+        `;
+        configTipoBody.appendChild(tr);
+      });
+
+      configMonedaBody.innerHTML = '';
+      configMoneda.forEach((mon, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHTML(mon)}</td>
+          <td class="config-actions">
+            <button onclick="editarConfig('moneda',${i})" class="edit-button">E</button>
+            <button onclick="eliminarConfig('moneda',${i})" class="delete-button">B</button>
+          </td>
+        `;
+        configMonedaBody.appendChild(tr);
+      });
+    }
+    function agregarConfig(tipo){
+      let label = (tipo === 'origen') ? 'Origen' : (tipo === 'tipo') ? 'Tipo' : 'Moneda';
+      const nuevoElemento = prompt(`Ingrese nuevo ${label}:`);
+      if(nuevoElemento){
+        const el = nuevoElemento.trim().toUpperCase();
+        if(!el){ alert('No puede estar vacío.'); return;}
+        if(tipo === 'origen'){
+          if(configOrigen.includes(el)){alert('Este origen ya existe.');return;}
+          configOrigen.push(el);
+        } else if(tipo === 'tipo'){
+          if(configTipo.includes(el)){alert('Este tipo ya existe.');return;}
+          configTipo.push(el);
+        } else{
+          if(configMoneda.includes(el)){alert('Esta moneda ya existe.');return;}
+          configMoneda.push(el);
+        }
+        guardarDatos();
+        actualizarSelects();
+        actualizarConfigModal();
+      }
+    }
+    function editarConfig(tipo, index){
+      let lista; let label='';
+      if(tipo === 'origen'){lista = configOrigen; label = 'Origen';}
+      else if(tipo === 'tipo'){lista = configTipo; label = 'Tipo';}
+      else{lista = configMoneda; label = 'Moneda';}
+
+      const actual = lista[index];
+      const nuevo = prompt(`Editar ${label}:`, actual);
+      if(nuevo){
+        const el = nuevo.trim().toUpperCase();
+        if(!el){alert('No puede estar vacío.');return;}
+        if(lista.includes(el) && el !== actual){alert('Ya existe en la lista.');return;}
+        lista[index] = el;
+        guardarDatos();
+        actualizarSelects();
+        actualizarConfigModal();
+      }
+    }
+    function eliminarConfig(tipo, index){
+      let lista;
+      if(tipo === 'origen') lista = configOrigen;
+      else if(tipo === 'tipo') lista = configTipo;
+      else lista = configMoneda;
+
+      const confirmDelete = confirm(`¿Seguro de eliminar este ${tipo}?`);
+      if(confirmDelete){
+        lista.splice(index, 1);
+        guardarDatos();
+        actualizarSelects();
+        actualizarConfigModal();
+      }
+    }
+
+    /**************************************************************
+     * MODO: MENSUAL / HISTÓRICO / DEFAULT (para la tabla principal)
+     **************************************************************/
+    function getPrecioCompraMensual(inversion, selectedMonth){
+      const invMonth = inversion.fecha.slice(0,7);
+      if(invMonth === selectedMonth){
+        return inversion.precio;
+      } else{
+        const prev = getPreviousMonth(selectedMonth);
+        const valAnterior = valoresMensuales[prev]?.values[inversion.nombre];
+        if(valAnterior && valAnterior > 0){
+          return valAnterior;
+        }
+        return inversion.precio;
+      }
+    }
+    function getPrecioCompraHistorico(inversion){
+      return inversion.precio;
+    }
+
+    /**************************************************************
+     * ACTUALIZAR TABLA & RESUMEN
+     **************************************************************/
+    function actualizarTabla(){
+      const tbody = document.getElementById('portfolioBody');
+      const filtroMoneda = document.getElementById('monedaFilter').value;
+      const filtroTipo = document.getElementById('tipoFilter').value;
+      const filtroOrigen = document.getElementById('origenFilter').value;
+      const selectedMonth = document.getElementById('monthYear').value;
+      const viewMode = document.getElementById('viewModeSelect').value;
+
+      tbody.innerHTML = '';
+
+      let filtradas = [...inversiones];
+
+      // Filtros
+      if(filtroMoneda){
+        filtradas = filtradas.filter(inv => inv.moneda === filtroMoneda);
+      }
+      if(filtroTipo){
+        filtradas = filtradas.filter(inv => inv.tipo === filtroTipo);
+      }
+      if(filtroOrigen){
+        filtradas = filtradas.filter(inv => inv.origen === filtroOrigen);
+      }
+      if(selectedMonth){
+        filtradas = filtradas.filter(inv => inv.fecha.slice(0,7) <= selectedMonth);
+      }
+
+      filtradas.forEach((inv, index) => {
+        let precioCompraBase = inv.precio;
+        let valorCargado = 0;
+
+        if(selectedMonth && valoresMensuales[selectedMonth]?.closed){
+          valorCargado = valoresMensuales[selectedMonth].values[inv.nombre] || 0;
+        }
+
+        // Lógica MENSUAL/HISTÓRICO
+        if(viewMode === 'MONTHLY' && selectedMonth){
+          precioCompraBase = getPrecioCompraMensual(inv, selectedMonth);
+        } else if(viewMode === 'HISTORICAL'){
+          precioCompraBase = getPrecioCompraHistorico(inv);
+        }
+
+        const valorInversion = inv.cuotaparte * precioCompraBase;
+        let valorActual = '-';
+        let diferencia = '-';
+        let porcentaje = null;
+
+        if(valorCargado > 0){
+          valorActual = inv.cuotaparte * valorCargado;
+          diferencia = valorActual - valorInversion;
+          porcentaje = calculatePercentage(valorActual, valorInversion);
+        }
+
+        const diffCell = (diferencia !== '-' && diferencia !== null)
+          ? (formatCurrency(Math.abs(diferencia), inv.moneda) +
+             (porcentaje ? ` (${Math.abs(porcentaje)}%)` : '') +
+             (diferencia >= 0 ? getDifferenceArrow(true) : getDifferenceArrow(false)))
+          : '-';
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHTML(inv.fecha)}</td>
+          <td>${escapeHTML(inv.nombre)}</td>
+          <td>${escapeHTML(inv.moneda)}</td>
+          <td class="number-cell">${formatNumber(inv.cuotaparte)}</td>
+          <td class="number-cell">${formatNumber(precioCompraBase)}</td>
+          <td class="number-cell">${formatCurrency(inv.cuotaparte * inv.precio, inv.moneda)}</td>
+          <td class="number-cell">${valorCargado > 0 ? formatCurrency(inv.cuotaparte * valorCargado, inv.moneda) : '-'}</td>
+          <td class="number-cell">${valorActual !== '-' ? formatCurrency(valorActual, inv.moneda) : '-'}</td>
+          <td class="number-cell" style="color:${diferencia >= 0 ? successColor : dangerColor};">${diffCell}</td>
+          <td class="acciones">
+            <button class="btn btn-edit" title="Editar" aria-label="Editar" onclick="editarInversion(${index})">E</button>
+            <button class="btn btn-sell" title="Vender" aria-label="Vender" onclick="venderInversion(${index})">V</button>
+            <button class="btn btn-delete" title="Eliminar" aria-label="Eliminar" onclick="eliminarInversion(${index})">B</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      actualizarResumen(filtradas);
+      guardarDatos();
+    }
+    function actualizarResumen(listaFiltrada){
+      const summaryPesos = document.getElementById('summaryContentPesos');
+      const summaryDolares = document.getElementById('summaryContentDolares');
+      const selectedMonth = document.getElementById('monthYear').value;
+      const viewMode = document.getElementById('viewModeSelect').value;
+
+      let totales = {
+        PESOS: {valorInversion: 0, valorCierreMes: 0, valorActual: 0},
+        DOLARES: {valorInversion: 0, valorCierreMes: 0, valorActual: 0}
+      };
+
+      listaFiltrada.forEach(inv => {
+        let precioCompraBase = inv.precio;
+        let valorCargado = 0;
+
+        if(selectedMonth && valoresMensuales[selectedMonth]?.closed){
+          valorCargado = valoresMensuales[selectedMonth].values[inv.nombre] || 0;
+        }
+
+        if(viewMode === 'MONTHLY' && selectedMonth){
+          precioCompraBase = getPrecioCompraMensual(inv, selectedMonth);
+        } else if(viewMode === 'HISTORICAL'){
+          precioCompraBase = getPrecioCompraHistorico(inv);
+        }
+
+        const invTotal = inv.cuotaparte * precioCompraBase;
+        const invActual = valorCargado > 0 ? (inv.cuotaparte * valorCargado) : 0;
+
+        totales[inv.moneda].valorInversion += invTotal;
+        totales[inv.moneda].valorCierreMes += (inv.cuotaparte * valorCargado);
+        totales[inv.moneda].valorActual += invActual;
+      });
+
+      // PESOS
+      const difPes = totales.PESOS.valorActual - totales.PESOS.valorInversion;
+      const pctPes = calculatePercentage(totales.PESOS.valorActual, totales.PESOS.valorInversion);
+
+      summaryPesos.innerHTML = `
+        <div class="summary-item">
+          <span class="summary-label">Total Inversión:</span>
+          <span class="summary-value">${formatCurrency(totales.PESOS.valorInversion, 'PESOS')}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Cierre Mes:</span>
+          <span class="summary-value">${formatCurrency(totales.PESOS.valorCierreMes, 'PESOS')}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Actual:</span>
+          <span class="summary-value">${formatCurrency(totales.PESOS.valorActual, 'PESOS')}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Diferencia:</span>
+          <span class="summary-value" style="color:${difPes >= 0 ? successColor : dangerColor};">
+            ${
+              difPes !== 0
+                ? formatCurrency(Math.abs(difPes), 'PESOS') +
+                  (difPes >= 0 ? ' (Ganancia)' : ' (Pérdida)') +
+                  (pctPes ? ` (${Math.abs(pctPes)}%)` : '') +
+                  (difPes >= 0 ? getDifferenceArrow(true) : getDifferenceArrow(false))
+                : '-'
+            }
+          </span>
+        </div>
+      `;
+
+      // DOLARES
+      const difDol = totales.DOLARES.valorActual - totales.DOLARES.valorInversion;
+      const pctDol = calculatePercentage(totales.DOLARES.valorActual, totales.DOLARES.valorInversion);
+
+      summaryDolares.innerHTML = `
+        <div class="summary-item">
+          <span class="summary-label">Total Inversión:</span>
+          <span class="summary-value">${formatCurrency(totales.DOLARES.valorInversion, 'DOLARES')}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Cierre Mes:</span>
+          <span class="summary-value">${formatCurrency(totales.DOLARES.valorCierreMes, 'DOLARES')}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Total Actual:</span>
+          <span class="summary-value">${formatCurrency(totales.DOLARES.valorActual, 'DOLARES')}</span>
+        </div>
+        <div class="summary-item">
+          <span class="summary-label">Diferencia:</span>
+          <span class="summary-value" style="color:${difDol >= 0 ? successColor : dangerColor};">
+            ${
+              difDol !== 0
+                ? formatCurrency(Math.abs(difDol), 'DOLARES') +
+                  (difDol >= 0 ? ' (Ganancia)' : ' (Pérdida)') +
+                  (pctDol ? ` (${Math.abs(pctDol)}%)` : '') +
+                  (difDol >= 0 ? getDifferenceArrow(true) : getDifferenceArrow(false))
+                : '-'
+            }
+          </span>
+        </div>
+      `;
+
+      totalesGlobal = totales;
+    }
+
+    /**************************************************************
+     * FORMULARIO INVERSIÓN
+     **************************************************************/
+    function mostrarFormulario(){
+      document.getElementById('editIndex').value = -1;
+      document.getElementById('investmentForm').reset();
+      document.getElementById('newInvestmentForm').classList.add('visible');
+    }
+    function cancelarInversion(){
+      document.getElementById('newInvestmentForm').classList.remove('visible');
+      document.getElementById('investmentForm').reset();
+      document.getElementById('editIndex').value = -1;
+    }
+    function guardarInversion(e){
+      e.preventDefault();
+      const editIndex = parseInt(document.getElementById('editIndex').value);
+      const fecha = document.getElementById('fecha').value;
+      const nombre = document.getElementById('nombre').value.trim();
+      const moneda = document.getElementById('moneda').value;
+      const cuotaparte = parseFloat(document.getElementById('cuotaparte').value);
+      const precio = parseFloat(document.getElementById('precio').value);
+      const origen = document.getElementById('origenInv').value;
+      const tipo = document.getElementById('tipoInv').value;
+
+      if(!fecha || !nombre || cuotaparte <= 0 || precio <= 0){
+        alert('Complete todos los campos correctamente (cuotaparte y precio > 0).');
+        return;
+      }
+
+      const nuevaInversion = {
+        fecha,
+        nombre,
+        moneda,
+        cuotaparte,
+        precio,
+        origen,
+        tipo,
+        valorActual: inversiones[editIndex]?.valorActual || 0
+      };
+
+      if(editIndex >= 0){
+        inversiones[editIndex] = nuevaInversion;
+      } else{
+        inversiones.push(nuevaInversion);
+      }
+      actualizarTabla();
+      cancelarInversion();
+    }
+    function editarInversion(index){
+      const inv = inversiones[index];
+      document.getElementById('fecha').value = inv.fecha;
+      document.getElementById('nombre').value = inv.nombre;
+      document.getElementById('moneda').value = inv.moneda;
+      document.getElementById('cuotaparte').value = inv.cuotaparte;
+      document.getElementById('precio').value = inv.precio;
+      document.getElementById('origenInv').value = inv.origen;
+      document.getElementById('tipoInv').value = inv.tipo;
+      document.getElementById('editIndex').value = index;
+      document.getElementById('newInvestmentForm').classList.add('visible');
+    }
+    function eliminarInversion(index){
+      if(confirm('¿Está seguro de eliminar esta inversión?')){
+        inversiones.splice(index,1);
+        actualizarTabla();
+      }
+    }
+
+    /**************************************************************
+     * FORM VALORES ACTUALES
+     **************************************************************/
+    function mostrarValoresActuales(){
+      const form = document.getElementById('currentValuesForm');
+      const container = document.getElementById('currentValuesContent');
+      container.innerHTML = '';
+      const monthKey = document.getElementById('currentValuesMonth').value;
+
+      if(!monthKey){
+        container.innerHTML = '<p>Seleccione un mes/año</p>';
+      } else{
+        const invMes = inversiones.filter(inv => inv.fecha.slice(0,7) <= monthKey);
+        if(invMes.length === 0){
+          container.innerHTML = '<p>No hay inversiones vigentes hasta el mes seleccionado.</p>';
+        } else{
+          const nombresUnicos = [...new Set(invMes.map(i => i.nombre))];
+          nombresUnicos.forEach(n => {
+            const existingValue = valoresMensuales[monthKey]?.values[n];
+            container.innerHTML += `
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="valorActual_${escapeHTML(n)}">${escapeHTML(n)}:</label>
+                  <input type="number" id="valorActual_${escapeHTML(n)}"
+                         step="0.0000000001"
+                         value="${existingValue !== undefined ? existingValue : ''}"
+                         placeholder="Ingrese valor actual">
+                </div>
+              </div>
+            `;
+          });
+        }
+      }
+      form.classList.add('visible');
+      const isClosed = valoresMensuales[monthKey]?.closed || false;
+      document.getElementById('monthClosed').checked = isClosed;
+      toggleFieldsBasedOnClosed(isClosed);
+    }
+    function cerrarValoresActuales(){
+      document.getElementById('currentValuesForm').classList.remove('visible');
+    }
+    document.getElementById('monthClosed').addEventListener('change', () => {
+      const isClosed = document.getElementById('monthClosed').checked;
+      toggleFieldsBasedOnClosed(isClosed);
+    });
+    function toggleFieldsBasedOnClosed(isClosed){
+      const container = document.getElementById('currentValuesContent');
+      const inputs = container.querySelectorAll('input[type="number"]');
+      inputs.forEach(inp => {
+        if(isClosed){
+          inp.readOnly = true;
+          inp.classList.add('readonly');
+        } else{
+          inp.readOnly = false;
+          inp.classList.remove('readonly');
+        }
+      });
+    }
+    function guardarValoresActuales(){
+      const monthKey = document.getElementById('currentValuesMonth').value;
+      const isClosed = document.getElementById('monthClosed').checked;
+
+      if(!monthKey){
+        alert('Por favor, seleccione un mes/año.');
+        return;
+      }
+      const invMes = inversiones.filter(inv => inv.fecha.slice(0,7) <= monthKey);
+      if(invMes.length === 0){
+        alert('No hay inversiones vigentes hasta el mes seleccionado.');
+        return;
+      }
+      if(!valoresMensuales[monthKey]){
+        valoresMensuales[monthKey] = {closed: isClosed, values: {}};
+      }
+      valoresMensuales[monthKey].closed = isClosed;
+
+      const nombresUnicos = [...new Set(invMes.map(i => i.nombre))];
+      nombresUnicos.forEach(n => {
+        const input = document.getElementById(`valorActual_${escapeHTML(n)}`);
+        if(input){
+          const val = parseFloat(input.value || 0);
+          if(!isNaN(val) && val > 0){
+            valoresMensuales[monthKey].values[n] = val;
+            inversiones.forEach(inv => {
+              if(inv.nombre === n){
+                inv.valorActual = val;
+              }
+            });
+          }
+        }
+      });
+      actualizarTabla();
+      cerrarValoresActuales();
+      alert('Valores actuales guardados correctamente.');
+    }
+    function exportarValoresActuales(){
+      const monthKey = document.getElementById('currentValuesMonth').value;
+      if(!monthKey){
+        alert('Por favor, seleccione un mes/año.');
+        return;
+      }
+      if(!valoresMensuales[monthKey]){
+        alert('No hay valores cargados para el mes/año seleccionado.');
+        return;
+      }
+      const wb = XLSX.utils.book_new();
+      const ws_data = [["Nombre de la inversión","Valor Actual"]];
+      Object.keys(valoresMensuales[monthKey].values).forEach(nombre => {
+        ws_data.push([nombre, valoresMensuales[monthKey].values[nombre]]);
+      });
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, `Valores_${monthKey}`);
+      XLSX.writeFile(wb, `Valores_Actuales_${monthKey}.xlsx`);
+    }
+
+    /**************************************************************
+     * RESULTADOS MENSALES / HISTÓRICOS (MODALES)
+     **************************************************************/
+    function mostrarResultadosMensuales(){
+      const modal = document.getElementById('monthlyResultsModal');
+      const content = document.getElementById('monthlyResultsContent');
+      content.innerHTML = '';
+      const selectedMonth = document.getElementById('monthYear').value;
+
+      if(!selectedMonth){
+        alert('Seleccione un mes/año en los filtros de arriba.');
+        return;
+      }
+      if(!valoresMensuales[selectedMonth]?.closed){
+        alert('El mes seleccionado no está cerrado. Cierre el mes antes de ver rendimiento mensual.');
+        return;
+      }
+
+      const invMes = inversiones.filter(inv => inv.fecha.slice(0,7) <= selectedMonth);
+      if(invMes.length === 0){
+        content.innerHTML = '<p>No hay inversiones vigentes hasta el mes seleccionado.</p>';
+      } else{
+        invMes.forEach(inversion => {
+          let precioCompra = getPrecioCompraMensual(inversion, selectedMonth);
+          const valorCompra = inversion.cuotaparte * precioCompra;
+          const valorCargado = valoresMensuales[selectedMonth].values[inversion.nombre] || 0;
+          const valorCierre = inversion.cuotaparte * valorCargado;
+          const diferencia = valorCierre - valorCompra;
+          const porcentaje = calculatePercentage(valorCierre, valorCompra);
+
+          // Fecha de adquisición y días transcurridos
+          const dias = calcularDiasDesdeHoy(inversion.fecha);
+
+          content.innerHTML += `
+            <div class="summary-section">
+              <h4>${escapeHTML(inversion.nombre)} (${escapeHTML(inversion.moneda)}) 
+                  - Adquirido: ${inversion.fecha} (hace ${dias} días)</h4>
+              <div class="summary-item">
+                <span class="summary-label">Valor de Compra (Mensual):</span>
+                <span class="summary-value">${formatCurrency(valorCompra, inversion.moneda)}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Valor Cierre Actual:</span>
+                <span class="summary-value">${formatCurrency(valorCierre, inversion.moneda)}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Diferencia:</span>
+                <span class="summary-value" style="color:${diferencia >= 0 ? successColor : dangerColor};">
+                  ${
+                    (diferencia !== 0)
+                      ? formatCurrency(Math.abs(diferencia), inversion.moneda) +
+                        (diferencia >= 0 ? ' (Ganancia)' : ' (Pérdida)') +
+                        (porcentaje ? ` (${Math.abs(porcentaje)}%)` : '') +
+                        (diferencia >= 0 ? getDifferenceArrow(true) : getDifferenceArrow(false))
+                      : '-'
+                  }
+                </span>
+              </div>
+            </div>
+          `;
+        });
+      }
+      modal.classList.add('visible');
+    }
+    function cerrarResultadosMensuales(){
+      document.getElementById('monthlyResultsModal').classList.remove('visible');
+    }
+
+    function mostrarResultadosHistoricos(){
+      const modal = document.getElementById('historicalResultsModal');
+      const content = document.getElementById('historicalResultsContent');
+      content.innerHTML = '';
+      const selectedMonth = document.getElementById('monthYear').value;
+
+      if(!selectedMonth){
+        alert('Seleccione un mes/año en los filtros de arriba.');
+        return;
+      }
+      if(!valoresMensuales[selectedMonth]?.closed){
+        alert('El mes seleccionado no está cerrado. Cierre el mes antes de ver rendimiento histórico.');
+        return;
+      }
+
+      const invMes = inversiones.filter(inv => inv.fecha.slice(0,7) <= selectedMonth);
+      if(invMes.length === 0){
+        content.innerHTML = '<p>No hay inversiones vigentes hasta el mes seleccionado.</p>';
+      } else{
+        invMes.forEach(inversion => {
+          let precioCompra = getPrecioCompraHistorico(inversion);
+          const valorCompra = inversion.cuotaparte * precioCompra;
+          const valorCargado = valoresMensuales[selectedMonth].values[inversion.nombre] || 0;
+          const valorCierre = inversion.cuotaparte * valorCargado;
+          const diferencia = valorCierre - valorCompra;
+          const porcentaje = calculatePercentage(valorCierre, valorCompra);
+
+          // Fecha de adquisición y días transcurridos
+          const dias = calcularDiasDesdeHoy(inversion.fecha);
+
+          content.innerHTML += `
+            <div class="summary-section">
+              <h4>${escapeHTML(inversion.nombre)} (${escapeHTML(inversion.moneda)}) 
+                  - Adquirido: ${inversion.fecha} (hace ${dias} días)</h4>
+              <div class="summary-item">
+                <span class="summary-label">Valor de Compra (Histórico):</span>
+                <span class="summary-value">${formatCurrency(valorCompra, inversion.moneda)}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Valor Cierre del Mes:</span>
+                <span class="summary-value">${formatCurrency(valorCierre, inversion.moneda)}</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Diferencia:</span>
+                <span class="summary-value" style="color:${diferencia >= 0 ? successColor : dangerColor};">
+                  ${
+                    (diferencia !== 0)
+                      ? formatCurrency(Math.abs(diferencia), inversion.moneda) +
+                        (diferencia >= 0 ? ' (Ganancia)' : ' (Pérdida)') +
+                        (porcentaje ? ` (${Math.abs(porcentaje)}%)` : '') +
+                        (diferencia >= 0 ? getDifferenceArrow(true) : getDifferenceArrow(false))
+                      : '-'
+                  }
+                </span>
+              </div>
+            </div>
+          `;
+        });
+      }
+      modal.classList.add('visible');
+    }
+    function cerrarResultadosHistoricos(){
+      document.getElementById('historicalResultsModal').classList.remove('visible');
+    }
+
+    /**************************************************************
+     * VENTAS / OPERACIONES CERRADAS
+     **************************************************************/
+    function venderInversion(index){
+      const inv = inversiones[index];
+      document.getElementById('saleIndex').value = index;
+      document.getElementById('nombreVenta').value = inv.nombre;
+      document.getElementById('cuotaparteVenta').value = inv.cuotaparte;
+      document.getElementById('cuotaparteVenta').readOnly = true;
+      document.getElementById('tipoVenta').value = 'TOTAL';
+      document.getElementById('precioVenta').value = '';
+      document.getElementById('fechaVenta').value = new Date().toISOString().split('T')[0];
+      document.getElementById('saleForm').classList.add('visible');
+    }
+    function toggleCuotaparteVenta(){
+      const tipoVenta = document.getElementById('tipoVenta').value;
+      const index = parseInt(document.getElementById('saleIndex').value);
+      const cuotaparteInput = document.getElementById('cuotaparteVenta');
+      if(tipoVenta === 'TOTAL'){
+        cuotaparteInput.value = inversiones[index].cuotaparte;
+        cuotaparteInput.readOnly = true;
+      } else{
+        cuotaparteInput.value = '';
+        cuotaparteInput.readOnly = false;
+        cuotaparteInput.max = inversiones[index].cuotaparte;
+      }
+    }
+    function procesarVenta(e){
+      e.preventDefault();
+      const index = parseInt(document.getElementById('saleIndex').value);
+      const inv = inversiones[index];
+      const cuotaparteVenta = parseFloat(document.getElementById('cuotaparteVenta').value);
+      const precioVenta = parseFloat(document.getElementById('precioVenta').value);
+      const fechaVenta = document.getElementById('fechaVenta').value;
+
+      if(cuotaparteVenta <= 0 || precioVenta <= 0){
+        alert('Valores inválidos en cuotaparte o precio de venta.');
+        return;
+      }
+      if(!fechaVenta){
+        alert('Seleccione una fecha de venta.');
+        return;
+      }
+      if(cuotaparteVenta > inv.cuotaparte){
+        alert('No puedes vender más cuotapartes de las que posees.');
+        return;
+      }
+
+      const resultado = (precioVenta - inv.precio) * cuotaparteVenta;
+      const opCerrada = {
+        fecha: fechaVenta,
+        nombre: inv.nombre,
+        moneda: inv.moneda,
+        cuotaparte: cuotaparteVenta,
+        precioCompra: inv.precio,
+        precioVenta,
+        resultado
+      };
+      operacionesCerradas.push(opCerrada);
+
+      if(document.getElementById('tipoVenta').value === 'PARCIAL'){
+        inversiones[index].cuotaparte -= cuotaparteVenta;
+      } else{
+        inversiones.splice(index, 1);
+      }
+      actualizarTabla();
+      cancelarVenta();
+      mostrarOperacionesCerradas();
+      guardarDatos();
+    }
+    function cancelarVenta(){
+      document.getElementById('saleForm').classList.remove('visible');
+      document.getElementById('ventaForm').reset();
+      document.getElementById('saleIndex').value = -1;
+      document.getElementById('nombreVenta').value = '';
+    }
+    function mostrarOperacionesCerradas(){
+      const modal = document.getElementById('closedOperationsModal');
+      const tbody = document.getElementById('closedOperationsBody');
+      tbody.innerHTML = '';
+
+      let totales = {PESOS: 0, DOLARES: 0};
+      operacionesCerradas.forEach(op => {
+        totales[op.moneda] += op.resultado;
+        const valorInversion = op.cuotaparte * op.precioCompra;
+        const valorVenta = op.cuotaparte * op.precioVenta;
+        const pct = calculatePercentage(valorVenta, valorInversion);
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHTML(op.fecha)}</td>
+          <td>${escapeHTML(op.nombre)}</td>
+          <td>${escapeHTML(op.moneda)}</td>
+          <td class="number-cell">${formatNumber(op.cuotaparte)}</td>
+          <td class="number-cell">${formatNumber(op.precioCompra)}</td>
+          <td class="number-cell">${formatNumber(op.precioVenta)}</td>
+          <td class="number-cell" style="color:${op.resultado >= 0 ? successColor : dangerColor}; font-weight:bold;">
+            ${formatCurrency(op.resultado, op.moneda)}
+            ${pct ? ` (${Math.abs(pct)}%)` : ''}
+            ${op.resultado >= 0 ? '▲' : '▼'}
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      Object.keys(totales).forEach(mon => {
+        const labelMon = (mon === 'PESOS') ? 'Pesos' : 'Dólares';
+        const trTotal = document.createElement('tr');
+        trTotal.innerHTML = `
+          <td colspan="6" style="text-align:right; font-weight:bold;">
+            Total Resultado en ${labelMon}:
+          </td>
+          <td class="number-cell" style="color:${totales[mon] >= 0 ? successColor : dangerColor}; font-weight:bold;">
+            ${formatCurrency(totales[mon], mon)} (${totales[mon] >= 0 ? 'Ganancia' : 'Pérdida'})
+          </td>
+        `;
+        tbody.appendChild(trTotal);
+      });
+
+      modal.classList.add('visible');
+      guardarDatos();
+    }
+    function cerrarModalOperaciones(){
+      document.getElementById('closedOperationsModal').classList.remove('visible');
+    }
+
+    /**************************************************************
+     * EXPORTAR EXCEL
+     **************************************************************/
+    function exportarExcel(){
+      const wb = XLSX.utils.book_new();
+      const selectedMonth = document.getElementById('monthYear').value;
+      const viewMode = document.getElementById('viewModeSelect').value;
+
+      const portPesos = [["Fecha Adquisición","Nombre","Moneda","Q cuotaparte","Precio Compra","Valor Inversión","Precio Cierre Último Mes","Valor Actual","Diferencia"]];
+      const portDolares = [["Fecha Adquisición","Nombre","Moneda","Q cuotaparte","Precio Compra","Valor Inversión","Precio Cierre Último Mes","Valor Actual","Diferencia"]];
+
+      inversiones.forEach(inv => {
+        let precioCompraBase = inv.precio;
+        let valorCargado = 0;
+        if(selectedMonth && valoresMensuales[selectedMonth]?.closed){
+          valorCargado = valoresMensuales[selectedMonth].values[inv.nombre] || 0;
+        }
+        if(viewMode === 'MONTHLY' && selectedMonth){
+          precioCompraBase = getPrecioCompraMensual(inv, selectedMonth);
+        } else if(viewMode === 'HISTORICAL'){
+          precioCompraBase = getPrecioCompraHistorico(inv);
+        }
+
+        const valorInversion = inv.cuotaparte * precioCompraBase;
+        let valCierre = '-';
+        let valActual = '-';
+        let dif = '-';
+        if(valorCargado > 0){
+          valCierre = inv.cuotaparte * valorCargado;
+          valActual = valCierre;
+          dif = valActual - valorInversion;
+        }
+
+        const row = [
+          inv.fecha,
+          inv.nombre,
+          inv.moneda,
+          inv.cuotaparte,
+          inv.precio,
+          valorInversion,
+          valCierre !== '-' ? valCierre : '-',
+          valActual !== '-' ? valActual : '-',
+          dif !== '-' ? dif : '-'
+        ];
+
+        if(inv.moneda === 'PESOS'){
+          portPesos.push(row);
+        } else{
+          portDolares.push(row);
+        }
+      });
+
+      const ws_portPesos = XLSX.utils.aoa_to_sheet(portPesos);
+      XLSX.utils.book_append_sheet(wb, ws_portPesos, "Portafolio Pesos");
+      const ws_portDolares = XLSX.utils.aoa_to_sheet(portDolares);
+      XLSX.utils.book_append_sheet(wb, ws_portDolares, "Portafolio Dólares");
+
+      // Operaciones Cerradas
+      const opPesos = [["Fecha Venta","Nombre","Moneda","Q Cuotaparte","Precio Compra","Precio Venta","Resultado"]];
+      const opDolares = [["Fecha Venta","Nombre","Moneda","Q Cuotaparte","Precio Compra","Precio Venta","Resultado"]];
+      operacionesCerradas.forEach(op => {
+        const fila = [
+          op.fecha,
+          op.nombre,
+          op.moneda,
+          op.cuotaparte,
+          op.precioCompra,
+          op.precioVenta,
+          op.resultado
+        ];
+        if(op.moneda === 'PESOS'){
+          opPesos.push(fila);
+        } else{
+          opDolares.push(fila);
+        }
+      });
+      const ws_opPesos = XLSX.utils.aoa_to_sheet(opPesos);
+      XLSX.utils.book_append_sheet(wb, ws_opPesos, "Operaciones Cerradas Pesos");
+      const ws_opDolares = XLSX.utils.aoa_to_sheet(opDolares);
+      XLSX.utils.book_append_sheet(wb, ws_opDolares, "Operaciones Cerradas Dólares");
+
+      // Valores Mensuales
+      const valPesos = [["Mes/Año","Nombre Inversión","Valor Actual"]];
+      const valDolares = [["Mes/Año","Nombre Inversión","Valor Actual"]];
+      Object.keys(valoresMensuales).sort().forEach(mKey => {
+        Object.keys(valoresMensuales[mKey].values).forEach(nombre => {
+          const inv = inversiones.find(i => i.nombre === nombre);
+          if(inv){
+            const row = [mKey, nombre, valoresMensuales[mKey].values[nombre]];
+            if(inv.moneda === 'PESOS') valPesos.push(row);
+            else valDolares.push(row);
+          }
+        });
+      });
+      const ws_valPesos = XLSX.utils.aoa_to_sheet(valPesos);
+      XLSX.utils.book_append_sheet(wb, ws_valPesos, "Valores Mensuales Pesos");
+      const ws_valDolares = XLSX.utils.aoa_to_sheet(valDolares);
+      XLSX.utils.book_append_sheet(wb, ws_valDolares, "Valores Mensuales Dólares");
+
+      // Resumen
+      if(totalesGlobal){
+        const pes = totalesGlobal.PESOS;
+        const dol = totalesGlobal.DOLARES;
+        const difPes = pes.valorActual - pes.valorInversion;
+        const difDol = dol.valorActual - dol.valorInversion;
+
+        const resPesos = [
+          ["Resumen de Inversiones en Pesos"],
+          ["Categoría","Valor"],
+          ["Total Inversión", pes.valorInversion],
+          ["Total Cierre Mes", pes.valorCierreMes],
+          ["Total Actual", pes.valorActual],
+          ["Diferencia", difPes]
+        ];
+        const resDolares = [
+          ["Resumen de Inversiones en Dólares"],
+          ["Categoría","Valor"],
+          ["Total Inversión", dol.valorInversion],
+          ["Total Cierre Mes", dol.valorCierreMes],
+          ["Total Actual", dol.valorActual],
+          ["Diferencia", difDol]
+        ];
+
+        const ws_resPesos = XLSX.utils.aoa_to_sheet(resPesos);
+        XLSX.utils.book_append_sheet(wb, ws_resPesos, "Resumen Pesos");
+        const ws_resDolares = XLSX.utils.aoa_to_sheet(resDolares);
+        XLSX.utils.book_append_sheet(wb, ws_resDolares, "Resumen Dólares");
+      }
+
+      XLSX.writeFile(wb, "Portfolio_Inversiones_Completo.xlsx");
+    }
+
+    /**************************************************************
+     * GRÁFICO RENDIMIENTO (Con toggle: Mensual / Histórico)
+     **************************************************************/
+    function abrirModalRendimiento(){
+      // Reseteamos la etiqueta según el valor actual
+      const toggle = document.getElementById('toggleChartMode');
+      const lbl = document.getElementById('toggleChartLabel');
+      lbl.textContent = toggle.checked ? 'Mensual' : 'Histórico';
+
+      document.getElementById('rendimientoModal').classList.add('visible');
+      // Intentamos generar el gráfico automáticamente si hay mes elegido
+      generarGraficoRendimiento();
+    }
+    function cerrarGraficoRendimiento(){
+      document.getElementById('rendimientoModal').classList.remove('visible');
+    }
+
+    function generarGraficoRendimiento(){
+      const inputMonth = document.getElementById('monthYearRendimiento').value;
+      const toggleChart = document.getElementById('toggleChartMode');
+      const lbl = document.getElementById('toggleChartLabel');
+
+      // Actualiza label
+      lbl.textContent = toggleChart.checked ? 'Mensual' : 'Histórico';
+
+      if(!inputMonth){
+        // Si no hay mes seleccionado, destruimos gráficos y salimos
+        if(doughnutPesos) doughnutPesos.destroy();
+        if(doughnutDolares) doughnutDolares.destroy();
+        return;
+      }
+
+      const isMonthly = toggleChart.checked; // true->Mensual, false->Histórico
+
+      // Filtrar inversiones vigentes
+      const listaFiltrada = inversiones.filter(inv => inv.fecha.slice(0,7) <= inputMonth);
+      if(listaFiltrada.length === 0){
+        if(doughnutPesos) doughnutPesos.destroy();
+        if(doughnutDolares) doughnutDolares.destroy();
+        return;
+      }
+
+      // Funciones para obtener precios base
+      function calcPrecioMensual(inv){
+        const invMonth = inv.fecha.slice(0,7);
+        if(invMonth === inputMonth) return inv.precio;
+        const prev = getPreviousMonth(inputMonth);
+        const valAnterior = valoresMensuales[prev]?.values[inv.nombre];
+        return (valAnterior && valAnterior > 0) ? valAnterior : inv.precio;
+      }
+      function calcPrecioHistorico(inv){
+        return inv.precio;
+      }
+
+      // Acumuladores separados por moneda y tipo
+      let distPesos = {};
+      let distDolares = {};
+
+      // Inicializamos en 0 solo para tipos que aparezcan
+      const tiposVigentes = [...new Set(listaFiltrada.map(i => i.tipo))];
+      tiposVigentes.forEach(t => {
+        distPesos[t] = 0;
+        distDolares[t] = 0;
+      });
+
+      // Recorremos inversiones para calcular valor (Mensual o Histórico)
+      listaFiltrada.forEach(inv => {
+        let precioBase = isMonthly ? calcPrecioMensual(inv) : calcPrecioHistorico(inv);
+        let valorCargado = 0;
+        if(valoresMensuales[inputMonth]?.closed){
+          valorCargado = valoresMensuales[inputMonth].values[inv.nombre] || 0;
+        }
+        const valorInversion = inv.cuotaparte * precioBase;
+        const valorActual = (valorCargado > 0) ? (inv.cuotaparte * valorCargado) : 0;
+        const total = (valorActual > 0) ? valorActual : valorInversion;
+
+        if(inv.moneda === 'PESOS'){
+          distPesos[inv.tipo] += total;
+        } else{
+          distDolares[inv.tipo] += total;
+        }
+      });
+
+      // Preparamos datos para cada donut
+      const labelsPesos = [];
+      const dataPesos = [];
+      Object.keys(distPesos).forEach(tipo => {
+        if(distPesos[tipo] > 0){
+          labelsPesos.push(tipo);
+          dataPesos.push(distPesos[tipo]);
+        }
+      });
+      const labelsDolares = [];
+      const dataDolares = [];
+      Object.keys(distDolares).forEach(tipo => {
+        if(distDolares[tipo] > 0){
+          labelsDolares.push(tipo);
+          dataDolares.push(distDolares[tipo]);
+        }
+      });
+
+      // Preparamos colores
+      const chartColors = [
+        '#3498db','#e67e22','#9b59b6','#f1c40f',
+        '#1abc9c','#2ecc71','#34495e','#c0392b'
+      ];
+
+      // Destruimos previos
+      if(doughnutPesos) doughnutPesos.destroy();
+      if(doughnutDolares) doughnutDolares.destroy();
+
+      const ctxPesos = document.getElementById('chartPesos').getContext('2d');
+      const ctxDolares = document.getElementById('chartDolares').getContext('2d');
+
+      // Donut Pesos
+      doughnutPesos = new Chart(ctxPesos, {
+        type: 'doughnut',
+        data: {
+          labels: labelsPesos,
+          datasets: [{
+            data: dataPesos,
+            backgroundColor: chartColors.slice(0, labelsPesos.length)
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '60%',
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'end',
+              offset: 15,
+              color: '#444',
+              font: { weight: 'bold' },
+              formatter: function(value, context){
+                let total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                if(value > 0){
+                  let pct = (value * 100 / total).toFixed(1) + '%';
+                  return pct + ' ' + context.chart.data.labels[context.dataIndex];
+                }
+                return '';
+              }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+
+      // Donut Dólares
+      doughnutDolares = new Chart(ctxDolares, {
+        type: 'doughnut',
+        data: {
+          labels: labelsDolares,
+          datasets: [{
+            data: dataDolares,
+            backgroundColor: chartColors.slice(labelsPesos.length, labelsPesos.length + labelsDolares.length)
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '60%',
+          plugins: {
+            legend: { display: false },
+            datalabels: {
+              anchor: 'end',
+              align: 'end',
+              offset: 15,
+              color: '#444',
+              font: { weight: 'bold' },
+              formatter: function(value, context){
+                let total = context.dataset.data.reduce((acc, val) => acc + val, 0);
+                if(value > 0){
+                  let pct = (value * 100 / total).toFixed(1) + '%';
+                  return pct + ' ' + context.chart.data.labels[context.dataIndex];
+                }
+                return '';
+              }
+            }
+          }
+        },
+        plugins: [ChartDataLabels]
+      });
+    }
+
+    /**************************************************************
+     * INICIALIZAR
+     **************************************************************/
+    function inicializarDatos(){
+      if(inversiones.length === 0){
+        inversiones = [
+          {
+            fecha: '2023-01-15',
+            nombre: 'AAPL - Apple Inc.',
+            moneda: 'DOLARES',
+            cuotaparte: 10.5,
+            precio: 150.75,
+            origen: 'EXTRANJERO',
+            tipo: 'ACCIONES',
+            valorActual: 160
+          },
+          {
+            fecha: '2023-02-20',
+            nombre: 'Bono Gobierno',
+            moneda: 'PESOS',
+            cuotaparte: 5000,
+            precio: 98.5,
+            origen: 'LOCAL',
+            tipo: 'BONOS',
+            valorActual: 100
+          },
+          {
+            fecha: '2023-03-10',
+            nombre: 'Bitcoin',
+            moneda: 'DOLARES',
+            cuotaparte: 0.5,
+            precio: 35000,
+            origen: 'EXTRANJERO',
+            tipo: 'CRIPTO',
+            valorActual: 40000
+          }
+        ];
+        guardarDatos();
+      }
+    }
+    function inicializarApp(){
+      cargarDatos();
+      inicializarDatos();
+      actualizarSelects();
+      actualizarTabla();
+    }
+
+    window.onload = inicializarApp;
+  </script>
+</body>
+</html>

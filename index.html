@@ -820,10 +820,12 @@
           <button class="close-button" onclick="cerrarConfiguracion()">&times;</button>
           <h3>Configuración</h3>
           <form id="configuracionForm" onsubmit="guardarConfiguracion(event)">
+            <!-- Orígenes -->
             <div class="form-row">
               <div class="form-group">
-                <label for="configOrigenSelect">Origenes:</label>
+                <label for="configOrigenSelect">Orígenes:</label>
                 <select id="configOrigenSelect">
+                  <option value="">Seleccione Origen</option>
                   <!-- Opciones dinámicas -->
                 </select>
                 <span class="error-message" id="errorConfigOrigenSelect"></span>
@@ -837,11 +839,19 @@
                 <button type="button" onclick="agregarOrigen()">Agregar</button>
               </div>
             </div>
+            <!-- Botón para eliminar Origenes -->
+            <div class="form-row">
+              <div class="form-group">
+                <button type="button" onclick="eliminarOrigen()">Eliminar Origen Seleccionado</button>
+              </div>
+            </div>
 
+            <!-- Tipos -->
             <div class="form-row">
               <div class="form-group">
                 <label for="configTipoSelect">Tipos:</label>
                 <select id="configTipoSelect">
+                  <option value="">Seleccione Tipo</option>
                   <!-- Opciones dinámicas -->
                 </select>
                 <span class="error-message" id="errorConfigTipoSelect"></span>
@@ -855,11 +865,19 @@
                 <button type="button" onclick="agregarTipo()">Agregar</button>
               </div>
             </div>
+            <!-- Botón para eliminar Tipos -->
+            <div class="form-row">
+              <div class="form-group">
+                <button type="button" onclick="eliminarTipo()">Eliminar Tipo Seleccionado</button>
+              </div>
+            </div>
 
+            <!-- Monedas -->
             <div class="form-row">
               <div class="form-group">
                 <label for="configMonedaSelect">Monedas:</label>
                 <select id="configMonedaSelect">
+                  <option value="">Seleccione Moneda</option>
                   <!-- Opciones dinámicas -->
                 </select>
                 <span class="error-message" id="errorConfigMonedaSelect"></span>
@@ -871,6 +889,12 @@
               </div>
               <div class="form-group" style="align-self: flex-end;">
                 <button type="button" onclick="agregarMoneda()">Agregar</button>
+              </div>
+            </div>
+            <!-- Botón para eliminar Monedas -->
+            <div class="form-row">
+              <div class="form-group">
+                <button type="button" onclick="eliminarMoneda()">Eliminar Moneda Seleccionada</button>
               </div>
             </div>
 
@@ -1290,6 +1314,21 @@
       error.textContent = '';
     }
 
+    function eliminarOrigen(){
+      const selectedOrigen = document.getElementById('configOrigenSelect').value;
+      const error = document.getElementById('errorConfigOrigenSelect');
+      if(selectedOrigen === ''){
+        error.textContent = 'Seleccione un origen para eliminar.';
+        return;
+      }
+      if(confirm(`¿Está seguro de eliminar el origen "${selectedOrigen}"?`)){
+        configOrigen = configOrigen.filter(o => o !== selectedOrigen);
+        actualizarSelects();
+        actualizarConfigModal();
+        error.textContent = '';
+      }
+    }
+
     function agregarTipo(){
       const nuevoTipo = document.getElementById('nuevoTipo').value.trim().toUpperCase();
       const error = document.getElementById('errorNuevoTipo');
@@ -1308,6 +1347,21 @@
       error.textContent = '';
     }
 
+    function eliminarTipo(){
+      const selectedTipo = document.getElementById('configTipoSelect').value;
+      const error = document.getElementById('errorConfigTipoSelect');
+      if(selectedTipo === ''){
+        error.textContent = 'Seleccione un tipo para eliminar.';
+        return;
+      }
+      if(confirm(`¿Está seguro de eliminar el tipo "${selectedTipo}"?`)){
+        configTipo = configTipo.filter(t => t !== selectedTipo);
+        actualizarSelects();
+        actualizarConfigModal();
+        error.textContent = '';
+      }
+    }
+
     function agregarMoneda(){
       const nuevaMoneda = document.getElementById('nuevoMoneda').value.trim().toUpperCase();
       const error = document.getElementById('errorNuevoMoneda');
@@ -1324,6 +1378,21 @@
       actualizarConfigModal();
       document.getElementById('nuevoMoneda').value = '';
       error.textContent = '';
+    }
+
+    function eliminarMoneda(){
+      const selectedMoneda = document.getElementById('configMonedaSelect').value;
+      const error = document.getElementById('errorConfigMonedaSelect');
+      if(selectedMoneda === ''){
+        error.textContent = 'Seleccione una moneda para eliminar.';
+        return;
+      }
+      if(confirm(`¿Está seguro de eliminar la moneda "${selectedMoneda}"?`)){
+        configMoneda = configMoneda.filter(m => m !== selectedMoneda);
+        actualizarSelects();
+        actualizarConfigModal();
+        error.textContent = '';
+      }
     }
 
     function guardarConfiguracion(e){

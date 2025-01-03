@@ -1630,7 +1630,7 @@
         return;
       }
 
-      // Verificar si el nombre ya existe para evitar duplicados
+      // Verificar si el nombre ya existe para evitar duplicados (solo al agregar, no al editar)
       if(editIndex === -1 && inversiones.some(inv => inv.nombre.toUpperCase() === nombre.toUpperCase())){
         alert('Ya existe una inversión con ese nombre.');
         return;
@@ -1971,8 +1971,7 @@
           }
 
           const valorInversion = inv.cuotaparte * precioCompra;
-          const valorCargado = valoresMensuales[getPreviousMonth(selectedMonth)]?.values[inv.nombre] || 0;
-          const valorActual = inv.cuotaparte * valorCargado;
+          const valorActual = inv.cuotaparte * (valoresMensuales[selectedMonth]?.values[inv.nombre] || 0);
           const diferencia = valorActual - valorInversion;
           const porcentaje = calculatePercentage(valorActual, valorInversion);
 
@@ -2036,8 +2035,7 @@
         invMes.forEach(inv => { // Corrección: Usar 'inv' en lugar de 'inversion'
           let precioCompra = getPrecioCompraHistorico(inv, selectedMonth);
           const valorInversion = inv.cuotaparte * inv.precio;
-          const valorCargado = valoresMensuales[selectedMonth]?.values[inv.nombre] || 0;
-          const valorActual = inv.cuotaparte * valorCargado;
+          const valorActual = inv.cuotaparte * (valoresMensuales[selectedMonth]?.values[inv.nombre] || 0);
           const diferencia = valorActual - valorInversion;
           const porcentaje = calculatePercentage(valorActual, valorInversion);
 

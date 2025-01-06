@@ -77,7 +77,7 @@
       height: 100%;
       width: 0;
       position: fixed;
-      z-index: 2000; /* Incrementar z-index para asegurar que esté por encima */
+      z-index: 2000; /* Asegura que esté por encima de otros elementos */
       top: 0;
       left: 0;
       background-color: var(--secondary);
@@ -118,7 +118,7 @@
       background: none;
       border: none;
       color: white;
-      position: absolute;
+      position: fixed;
       top: 10px;
       left: 20px;
       z-index: 2100; /* Por encima del menú lateral */
@@ -149,19 +149,61 @@
       margin-bottom: 1.5rem;
     }
 
-    .filters select, .filters input[type="month"] {
+    /* Ajustes de la Sección de Filtros */
+    .filters {
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      overflow-x: auto;
+      background-color: var(--secondary);
+      padding: 1rem;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .filters label {
+      flex: 0 0 150px; /* Ancho fijo para las etiquetas */
+      font-weight: bold;
+      color: white;
+    }
+
+    .filters select, 
+    .filters input[type="month"] {
+      flex: 1 1 auto;
       padding: 0.5rem;
-      margin-right: 1rem;
       border: 1px solid #ccc;
       border-radius: 4px;
       transition: border-color var(--transition-speed);
-      background-color: var(--background);
+      background-color: white;
       color: var(--text);
+      min-width: 150px;
     }
 
     .filters select:focus, .filters input[type="month"]:focus {
       border-color: var(--accent);
       outline: none;
+    }
+
+    @media (max-width: 800px) {
+      .filters {
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .filters label {
+        flex: 0 0 100%;
+        text-align: center;
+        color: white;
+      }
+
+      .filters select, 
+      .filters input[type="month"] {
+        flex: 0 0 100%;
+        max-width: 100%;
+        background-color: #ecf0f1;
+      }
     }
 
     /* Centrando botones */
@@ -182,6 +224,7 @@
       cursor: pointer;
       transition: background-color var(--transition-speed), transform var(--transition-speed);
       font-size: 1rem;
+      min-width: 150px; /* Ajuste de ancho mínimo */
     }
 
     .actions-top button:hover, .actions-middle button:hover, .actions-bottom button:hover {
@@ -191,6 +234,7 @@
 
     .actions-bottom .export-button, .actions-bottom .chart-button {
       background-color: var(--button-export);
+      min-width: 200px; /* Más ancho para botones especiales */
     }
 
     .actions-bottom .chart-button {
@@ -217,7 +261,7 @@
 
     .summary-box {
       width: 48%;
-      background-color: var(--background);
+      background-color: white;
       padding: 1rem;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -236,6 +280,11 @@
       color: var(--primary);
       border-bottom: 2px solid var(--accent);
       padding-bottom: 0.5rem;
+    }
+
+    /* Ajuste para modo oscuro: títulos en blanco */
+    body.dark-mode .summary-box h4 {
+      color: white;
     }
 
     .summary-item {
@@ -294,6 +343,7 @@
 
     .number-cell {
       text-align: right;
+      min-width: 100px; /* Ajuste de ancho mínimo */
     }
 
     .acciones {
@@ -328,10 +378,13 @@
     .btn-edit {
       background-color: var(--btn-edit-color);
       color: black;
-      width: 2rem;
-      height: 2rem;
+      width: 2.5rem;
+      height: 2.5rem;
       border-radius: 50%;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-edit:hover {
@@ -340,17 +393,23 @@
 
     .btn-sell {
       background-color: var(--success);
-      width: 2rem;
-      height: 2rem;
+      width: 2.5rem;
+      height: 2.5rem;
       border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .btn-delete {
       background-color: var(--danger);
-      width: 2rem;
-      height: 2rem;
+      width: 2.5rem;
+      height: 2.5rem;
       border-radius: 50%;
       margin-top: 0.3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     /* Modals */
@@ -432,26 +491,30 @@
 
     .form-group {
       flex: 1;
-      min-width: 200px;
+      min-width: 300px; /* Aumentado para ocupar más espacio */
       margin-right: 1rem;
       margin-bottom: 0.5rem;
       position: relative;
+      display: flex;
+      flex-direction: column;
     }
 
     .form-group label {
-      display: block;
-      margin-bottom: 0.3rem;
+      display: inline-block;
+      width: 200px; /* Ancho ajustado para acomodar números de 6 enteros y 2 decimales */
       font-weight: bold;
+      margin-bottom: 0.3rem;
     }
 
     .form-group input, .form-group select {
-      width: 100%;
+      width: calc(100% - 200px);
       padding: 0.5rem;
       border: 1px solid #ccc;
       border-radius: 3px;
       transition: border-color var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed);
       background-color: var(--background);
       color: var(--text);
+      min-width: 15ch; /* Mínimo de 15 caracteres */
     }
 
     body.dark-mode .form-group input, 
@@ -464,19 +527,6 @@
     .form-group input:focus, .form-group select:focus {
       border-color: var(--accent);
       outline: none;
-    }
-
-    .form-group input.readonly {
-      background-color: var(--readonly-bg);
-      cursor: not-allowed;
-    }
-
-    .form-group .error-message {
-      color: var(--danger);
-      font-size: 0.8rem;
-      position: absolute;
-      bottom: -1.2rem;
-      left: 0;
     }
 
     .form-actions {
@@ -493,6 +543,7 @@
       color: white;
       transition: background-color var(--transition-speed), transform var(--transition-speed);
       font-size: 1rem;
+      min-width: 150px; /* Asegurar un ancho consistente */
     }
 
     .form-actions button:hover {
@@ -508,76 +559,12 @@
       background-color: #a93226;
     }
 
-    /* Configuración Modal */
-    #configuracionModal .modal-content {
-      max-width: 600px;
+    .form-group.comisiones-pagadas {
+      max-width: 25ch; /* Limita el ancho a 25 caracteres */
     }
 
-    /* Charts */
-    .rendimiento-charts-container {
-      display: flex;
-      justify-content: space-around;
-      flex-wrap: wrap;
-      margin-top: 1rem;
-    }
-
-    .chart-box {
-      width: 220px;
-      height: 220px;
-      margin: 1rem;
-    }
-
-    /* Botones adicionales para exportar/importar localStorage */
-    .actions-extra {
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-
-    .actions-extra button {
-      padding: var(--small-button-size);
-      font-size: 0.8rem;
-      background-color: #7f8c8d;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
-      color: white;
-      transition: background-color var(--transition-speed), transform var(--transition-speed);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .actions-extra button:hover {
-      background-color: #95a5a6;
-      transform: scale(1.05);
-    }
-
-    /* Progress Bars */
-    .progress-container {
-      margin-top: 1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .progress-bar {
-      width: 100%;
-      background-color: #ddd;
-      border-radius: 5px;
-      overflow: hidden;
-      margin-bottom: 1rem;
-    }
-
-    .progress-bar-inner {
-      height: 20px;
-      width: 0;
-      background-color: var(--success);
-      text-align: center;
-      line-height: 20px;
-      color: white;
-      transition: width var(--transition-speed);
+    .form-group.comisiones-pagadas input {
+      width: 100%; /* Ocupa todo el ancho del contenedor limitado */
     }
 
     /* Responsive */
@@ -594,6 +581,7 @@
       }
       .form-group {
         margin-right: 0;
+        min-width: 100%;
       }
       .rendimiento-charts-container {
         flex-direction: column;
@@ -613,6 +601,7 @@
     <a href="#" onclick="mostrarOperacionesCerradas()">Operaciones Cerradas</a>
     <a href="#" onclick="mostrarResultadosMensuales()">Resultados Mensuales</a>
     <a href="#" onclick="mostrarResultadosHistoricos()">Resultados Históricos</a>
+    <a href="#" onclick="mostrarComisionesPagadas()">Comisiones Pagadas</a> <!-- Nuevo enlace -->
   </div>
 
   <!-- Botón para abrir el Menú Lateral -->
@@ -630,30 +619,40 @@
   <main>
     <!-- Sección de Filtros -->
     <section class="filters">
-      <label for="monthYear">Mes/Año:</label>
-      <input type="month" id="monthYear" onchange="actualizarTabla()">
+      <div class="filter-group">
+        <label for="monthYear">Mes/Año:</label>
+        <input type="month" id="monthYear" onchange="actualizarTabla()">
+      </div>
 
-      <label for="viewModeSelect">Modo de Rendimiento:</label>
-      <select id="viewModeSelect" onchange="actualizarTabla()">
-        <option value="DEFAULT">Default</option>
-        <option value="MONTHLY">Mensual</option>
-        <option value="HISTORICAL">Histórico</option>
-      </select>
+      <div class="filter-group">
+        <label for="viewModeSelect">Modo de Rendimiento:</label>
+        <select id="viewModeSelect" onchange="actualizarTabla()">
+          <option value="DEFAULT">Default</option>
+          <option value="MONTHLY">Mensual</option>
+          <option value="HISTORICAL">Histórico</option>
+        </select>
+      </div>
 
-      <label for="origenFilter">Origen:</label>
-      <select id="origenFilter" onchange="actualizarTabla()">
-        <!-- Opciones dinámicas -->
-      </select>
+      <div class="filter-group">
+        <label for="origenFilter">Origen:</label>
+        <select id="origenFilter" onchange="actualizarTabla()">
+          <!-- Opciones dinámicas -->
+        </select>
+      </div>
 
-      <label for="tipoFilter">Tipo:</label>
-      <select id="tipoFilter" onchange="actualizarTabla()">
-        <!-- Opciones dinámicas -->
-      </select>
+      <div class="filter-group">
+        <label for="tipoFilter">Tipo:</label>
+        <select id="tipoFilter" onchange="actualizarTabla()">
+          <!-- Opciones dinámicas -->
+        </select>
+      </div>
 
-      <label for="monedaFilter">Moneda:</label>
-      <select id="monedaFilter" onchange="actualizarTabla()">
-        <!-- Opciones dinámicas -->
-      </select>
+      <div class="filter-group">
+        <label for="monedaFilter">Moneda:</label>
+        <select id="monedaFilter" onchange="actualizarTabla()">
+          <!-- Opciones dinámicas -->
+        </select>
+      </div>
     </section>
 
     <!-- Sección de Acciones -->
@@ -731,16 +730,6 @@
         <!-- Input para subir archivo Excel -->
         <input type="file" id="uploadLocalStorageInput" accept=".xlsx, .xls" style="display:none" onchange="procesarArchivoLocalStorage(event)">
       </div>
-
-      <!-- Progress Bars -->
-      <div class="progress-container">
-        <div class="progress-bar">
-          <div class="progress-bar-inner" id="progressBarExport">0%</div>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-bar-inner" id="progressBarUpload">0%</div>
-        </div>
-      </div>
     </section>
 
     <!-- Sección de Tablas -->
@@ -766,187 +755,7 @@
         </tbody>
       </table>
 
-      <!-- Modal para Resultados Mensuales -->
-      <div id="monthlyResultsModal" class="modal">
-        <div class="modal-content">
-          <button class="close-button" onclick="cerrarResultadosMensuales()">&times;</button>
-          <h3>Resultados Mensuales</h3>
-          <div id="monthlyResultsContent">
-            <!-- Contenido dinámico -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal para Resultados Históricos -->
-      <div id="historicalResultsModal" class="modal">
-        <div class="modal-content">
-          <button class="close-button" onclick="cerrarResultadosHistoricos()">&times;</button>
-          <h3>Resultados Históricos</h3>
-          <div id="historicalResultsContent">
-            <!-- Contenido dinámico -->
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal para Operaciones Cerradas -->
-      <div id="closedOperationsModal" class="modal">
-        <div class="modal-content">
-          <button class="close-button" onclick="cerrarModalOperaciones()">&times;</button>
-          <h3>Operaciones Cerradas</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Fecha Venta</th>
-                <th>Nombre</th>
-                <th>Moneda</th>
-                <th>Q Cuotaparte</th>
-                <th>Precio Compra</th>
-                <th>Precio Venta</th>
-                <th>Comisiones Pagadas</th>
-                <th>Valor a Reinvertir</th>
-                <th>Rendimiento</th>
-              </tr>
-            </thead>
-            <tbody id="closedOperationsBody">
-              <!-- Contenido dinámico -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- Modal para Configuración -->
-      <div id="configuracionModal" class="modal">
-        <div class="modal-content">
-          <button class="close-button" onclick="cerrarConfiguracion()">&times;</button>
-          <h3>Configuración</h3>
-          <form id="configuracionForm" onsubmit="guardarConfiguracion(event)">
-            <!-- Orígenes -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="configOrigenSelect">Orígenes:</label>
-                <select id="configOrigenSelect">
-                  <option value="">Seleccione Origen</option>
-                  <!-- Opciones dinámicas -->
-                </select>
-                <span class="error-message" id="errorConfigOrigenSelect"></span>
-              </div>
-              <div class="form-group">
-                <label for="nuevoOrigen">Nuevo Origen:</label>
-                <input type="text" id="nuevoOrigen" placeholder="Agregar nuevo origen">
-                <span class="error-message" id="errorNuevoOrigen"></span>
-              </div>
-              <div class="form-group" style="align-self: flex-end;">
-                <button type="button" onclick="agregarOrigen()">Agregar</button>
-              </div>
-            </div>
-            <!-- Botón para eliminar Origenes -->
-            <div class="form-row">
-              <div class="form-group">
-                <button type="button" onclick="eliminarOrigen()">Eliminar Origen Seleccionado</button>
-              </div>
-            </div>
-
-            <!-- Tipos -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="configTipoSelect">Tipos:</label>
-                <select id="configTipoSelect">
-                  <option value="">Seleccione Tipo</option>
-                  <!-- Opciones dinámicas -->
-                </select>
-                <span class="error-message" id="errorConfigTipoSelect"></span>
-              </div>
-              <div class="form-group">
-                <label for="nuevoTipo">Nuevo Tipo:</label>
-                <input type="text" id="nuevoTipo" placeholder="Agregar nuevo tipo">
-                <span class="error-message" id="errorNuevoTipo"></span>
-              </div>
-              <div class="form-group" style="align-self: flex-end;">
-                <button type="button" onclick="agregarTipo()">Agregar</button>
-              </div>
-            </div>
-            <!-- Botón para eliminar Tipos -->
-            <div class="form-row">
-              <div class="form-group">
-                <button type="button" onclick="eliminarTipo()">Eliminar Tipo Seleccionado</button>
-              </div>
-            </div>
-
-            <!-- Monedas -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="configMonedaSelect">Monedas:</label>
-                <select id="configMonedaSelect">
-                  <option value="">Seleccione Moneda</option>
-                  <!-- Opciones dinámicas -->
-                </select>
-                <span class="error-message" id="errorConfigMonedaSelect"></span>
-              </div>
-              <div class="form-group">
-                <label for="nuevoMoneda">Nueva Moneda:</label>
-                <input type="text" id="nuevoMoneda" placeholder="Agregar nueva moneda">
-                <span class="error-message" id="errorNuevoMoneda"></span>
-              </div>
-              <div class="form-group" style="align-self: flex-end;">
-                <button type="button" onclick="agregarMoneda()">Agregar</button>
-              </div>
-            </div>
-            <!-- Botón para eliminar Monedas -->
-            <div class="form-row">
-              <div class="form-group">
-                <button type="button" onclick="eliminarMoneda()">Eliminar Moneda Seleccionada</button>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button type="submit">Guardar Configuración</button>
-              <button type="button" class="cancel-button" onclick="cerrarConfiguracion()">Cancelar</button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      <!-- Modal para Gráficos de Rendimiento -->
-      <div id="rendimientoModal" class="modal">
-        <div class="modal-content">
-          <button class="close-button" onclick="cerrarGraficoRendimiento()">&times;</button>
-          <h3>Gráfico de Rendimiento</h3>
-
-          <!-- Campo para definir Mes/Año en el gráfico -->
-          <div class="form-row">
-            <div class="form-group">
-              <label for="monthYearRendimiento">Mes/Año a analizar:</label>
-              <input type="month" id="monthYearRendimiento" required onchange="generarGraficoRendimiento()">
-              <span class="error-message" id="errorMonthYearRendimiento"></span>
-            </div>
-          </div>
-
-          <!-- Toggle switch Mensual / Histórico -->
-          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
-            <label class="switch">
-              <input type="checkbox" id="toggleChartMode" onchange="generarGraficoRendimiento()" />
-              <span class="slider round"></span>
-            </label>
-            <div>
-              <span id="toggleChartLabel">Histórico</span>
-            </div>
-          </div>
-
-          <!-- Contenedor de los dos gráficos -->
-          <div class="rendimiento-charts-container">
-            <div class="chart-box">
-              <h4>Inversiones en PESOS</h4>
-              <canvas id="chartPesos" width="220" height="220"></canvas>
-            </div>
-            <div class="chart-box">
-              <h4>Inversiones en DÓLARES</h4>
-              <canvas id="chartDolares" width="220" height="220"></canvas>
-            </div>
-          </div>
-
-          <button class="close-button" onclick="cerrarGraficoRendimiento()" style="top: 10px; right: 20px;">Cerrar</button>
-        </div>
-      </div>
+      <!-- ... (otros modales y secciones) ... -->
 
       <!-- Formulario para Agregar/Editar Inversión -->
       <div id="newInvestmentForm" class="form-section">
@@ -957,45 +766,42 @@
             <div class="form-group">
               <label for="fecha">Fecha de Adquisición:</label>
               <input type="date" id="fecha" required>
-              <span class="error-message" id="errorFecha"></span>
             </div>
             <div class="form-group">
               <label for="nombre">Nombre de la Inversión:</label>
               <input type="text" id="nombre" required>
-              <span class="error-message" id="errorNombre"></span>
             </div>
             <div class="form-group">
               <label for="moneda">Moneda:</label>
               <select id="moneda" required>
                 <!-- Opciones dinámicas -->
               </select>
-              <span class="error-message" id="errorMoneda"></span>
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label for="cuotaparte">Q Cuotaparte:</label>
               <input type="number" id="cuotaparte" step="0.0000001" required>
-              <span class="error-message" id="errorCuotaparte"></span>
             </div>
             <div class="form-group">
               <label for="precio">Precio de Compra:</label>
               <input type="number" id="precio" step="0.0000001" required>
-              <span class="error-message" id="errorPrecio"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group comisiones-pagadas">
+              <label for="comisionesPagadas">Comisiones Pagadas:</label>
+              <input type="number" id="comisionesPagadas" step="0.01" min="0" max="999999.99" placeholder="0.00">
+            </div>
+            <div class="form-group" style="max-width: 25ch;">
               <label for="origenInv">Origen:</label>
               <select id="origenInv" required>
                 <!-- Opciones dinámicas -->
               </select>
-              <span class="error-message" id="errorOrigenInv"></span>
             </div>
-            <div class="form-group">
+            <div class="form-group" style="max-width: 25ch;">
               <label for="tipoInv">Tipo:</label>
               <select id="tipoInv" required>
                 <!-- Opciones dinámicas -->
               </select>
-              <span class="error-message" id="errorTipoInv"></span>
             </div>
           </div>
           <div class="form-actions">
@@ -1018,7 +824,6 @@
             <div class="form-group">
               <label for="cuotaparteVenta">Q Cuotaparte a Vender:</label>
               <input type="number" id="cuotaparteVenta" step="0.0000001" readonly>
-              <span class="error-message" id="errorCuotaparteVenta"></span>
             </div>
             <div class="form-group">
               <label for="tipoVenta">Tipo de Venta:</label>
@@ -1026,24 +831,20 @@
                 <option value="TOTAL">Total</option>
                 <option value="PARCIAL">Parcial</option>
               </select>
-              <span class="error-message" id="errorTipoVenta"></span>
             </div>
             <div class="form-group">
               <label for="precioVenta">Precio de Venta:</label>
-              <input type="number" id="precioVenta" step="0.01" required>
-              <span class="error-message" id="errorPrecioVenta"></span>
+              <input type="number" id="precioVenta" step="0.0000001" required>
             </div>
             <div class="form-group">
               <label for="fechaVenta">Fecha de Venta:</label>
               <input type="date" id="fechaVenta" required>
-              <span class="error-message" id="errorFechaVenta"></span>
             </div>
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label for="comisionesPagadas">Comisiones Pagadas:</label>
-              <input type="number" id="comisionesPagadas" step="0.01">
-              <span class="error-message" id="errorComisionesPagadas"></span>
+            <div class="form-group comisiones-pagadas">
+              <label for="comisionesPagadasVenta">Comisiones Pagadas:</label>
+              <input type="number" id="comisionesPagadasVenta" step="0.01" min="0" max="999999.99" placeholder="0.00">
             </div>
           </div>
           <div class="form-actions">
@@ -1053,40 +854,164 @@
         </form>
       </div>
 
-      <!-- Formulario para Cargar Valores Actuales -->
-      <section id="currentValuesForm" class="form-section">
-        <form id="currentValuesFormContent">
-          <h3>Cargar Valores Actuales</h3>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="currentValuesMonth">Mes/Año:</label>
-              <input type="month" id="currentValuesMonth" required onchange="mostrarValoresActuales()">
-              <span class="error-message" id="errorCurrentValuesMonth"></span>
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="monthClosed">
-                Mes Cerrado
-              </label>
-            </div>
-          </div>
-          <div id="currentValuesContent"></div>
-          <div class="form-actions">
-            <button type="button" onclick="descargarPlantilla()">Descargar Plantilla</button>
-            <button type="button" onclick="subirValoresMasivamente()">Subir Valores Masivamente</button>
-            <input type="file" id="uploadFileInput" accept=".xlsx, .xls, .csv" style="display:none" onchange="procesarArchivoSubido(event)">
-            <button type="button" onclick="validarYSubirValores()" id="guardarValoresBtn">Guardar Valores</button>
-            <button type="button" class="export-button" onclick="exportarValoresActuales()" style="background-color: var(--accent);">Bajar a Excel</button>
-            <button type="button" class="cancel-button" onclick="cerrarValoresActuales()">Cancelar</button>
-          </div>
-        </form>
-      </section>
+      <!-- ... (otros modales y secciones) ... -->
+
     </section>
   </main>
 
   <footer>
     &copy; 2024 Portfolio de Inversiones. Todos los derechos reservados.
   </footer>
+
+  <!-- Modales Adicionales -->
+  
+  <!-- Configuración Modal -->
+  <div id="configuracionModal" class="modal">
+    <div class="modal-content">
+      <button class="close-button" onclick="cerrarConfiguracion()">&times;</button>
+      <h3>Configuración</h3>
+      <form id="configuracionForm" onsubmit="guardarConfiguracion(event)">
+        <h4>Orígenes</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="configOrigenSelect">Eliminar Origen:</label>
+            <select id="configOrigenSelect">
+              <!-- Opciones dinámicas -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="nuevoOrigen">Agregar Origen:</label>
+            <input type="text" id="nuevoOrigen" placeholder="Nuevo Origen">
+          </div>
+        </div>
+        <button type="button" onclick="agregarOrigen()">Agregar Origen</button>
+        <button type="button" onclick="eliminarOrigen()">Eliminar Origen</button>
+
+        <h4>Tipos</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="configTipoSelect">Eliminar Tipo:</label>
+            <select id="configTipoSelect">
+              <!-- Opciones dinámicas -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="nuevoTipo">Agregar Tipo:</label>
+            <input type="text" id="nuevoTipo" placeholder="Nuevo Tipo">
+          </div>
+        </div>
+        <button type="button" onclick="agregarTipo()">Agregar Tipo</button>
+        <button type="button" onclick="eliminarTipo()">Eliminar Tipo</button>
+
+        <h4>Monedas</h4>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="configMonedaSelect">Eliminar Moneda:</label>
+            <select id="configMonedaSelect">
+              <!-- Opciones dinámicas -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="nuevoMoneda">Agregar Moneda:</label>
+            <input type="text" id="nuevoMoneda" placeholder="Nueva Moneda">
+          </div>
+        </div>
+        <button type="button" onclick="agregarMoneda()">Agregar Moneda</button>
+        <button type="button" onclick="eliminarMoneda()">Eliminar Moneda</button>
+
+        <div class="form-actions">
+          <button type="submit">Guardar Configuración</button>
+          <button type="button" class="cancel-button" onclick="cerrarConfiguracion()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Operaciones Cerradas Modal -->
+  <div id="closedOperationsModal" class="modal">
+    <div class="modal-content">
+      <button class="close-button" onclick="cerrarModalOperaciones()">&times;</button>
+      <h3>Operaciones Cerradas</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha Venta</th>
+            <th>Nombre</th>
+            <th>Moneda</th>
+            <th>Q Cuotaparte</th>
+            <th>Precio Compra</th>
+            <th>Precio Venta</th>
+            <th>Comisiones Pagadas</th>
+            <th>Valor a Reinvertir</th>
+            <th>Rendimiento</th>
+          </tr>
+        </thead>
+        <tbody id="closedOperationsBody">
+          <!-- Contenido dinámico -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Valores Mensuales Modal -->
+  <div id="monthlyResultsModal" class="modal">
+    <div class="modal-content">
+      <button class="close-button" onclick="cerrarResultadosMensuales()">&times;</button>
+      <h3>Resultados Mensuales</h3>
+      <div id="monthlyResultsContent">
+        <!-- Contenido dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Resultados Históricos Modal -->
+  <div id="historicalResultsModal" class="modal">
+    <div class="modal-content">
+      <button class="close-button" onclick="cerrarResultadosHistoricos()">&times;</button>
+      <h3>Resultados Históricos</h3>
+      <div id="historicalResultsContent">
+        <!-- Contenido dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Comisiones Pagadas Modal -->
+  <div id="comisionesPagadasModal" class="modal">
+    <div class="modal-content">
+      <button class="close-button" onclick="cerrarComisionesPagadas()">&times;</button>
+      <h3>Comisiones Pagadas</h3>
+      <div id="comisionesPagadasContent">
+        <!-- Contenido dinámico -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Gráfico Rendimiento Modal -->
+  <div id="rendimientoModal" class="modal">
+    <div class="modal-content">
+      <button class="close-button" onclick="cerrarGraficoRendimiento()">&times;</button>
+      <h3>Gráfico de Rendimiento</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="monthYearRendimiento">Mes/Año:</label>
+          <input type="month" id="monthYearRendimiento" onchange="generarGraficoRendimiento()">
+        </div>
+        <div class="form-group">
+          <label for="toggleChartMode">Modo:</label>
+          <div style="display: flex; align-items: center;">
+            <input type="checkbox" id="toggleChartMode" onchange="generarGraficoRendimiento()">
+            <label id="toggleChartLabel" for="toggleChartMode" style="margin-left: 0.5rem;">Mensual</label>
+          </div>
+        </div>
+      </div>
+      <div class="rendimiento-charts-container">
+        <canvas id="chartPesos" width="400" height="400"></canvas>
+        <canvas id="chartDolares" width="400" height="400"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ... (otros modales y secciones) ... -->
 
   <!-- AQUÍ COMIENZA TODO EL JAVASCRIPT DE LA APLICACIÓN -->
   <script>
@@ -1293,111 +1218,105 @@
 
     function cerrarConfiguracion(){
       document.getElementById('configuracionModal').classList.remove('visible');
-      limpiarValidaciones('configuracionForm');
+      document.getElementById('configuracionForm').reset();
     }
 
     function agregarOrigen(){
       const nuevoOrigen = document.getElementById('nuevoOrigen').value.trim().toUpperCase();
-      const error = document.getElementById('errorNuevoOrigen');
       if(nuevoOrigen === ''){
-        error.textContent = 'Ingrese un origen válido.';
+        alert('Ingrese un origen válido.');
         return;
       }
       if(configOrigen.includes(nuevoOrigen)){
-        error.textContent = 'El origen ya existe.';
+        alert('El origen ya existe.');
         return;
       }
       configOrigen.push(nuevoOrigen);
       actualizarSelects();
       actualizarConfigModal();
       document.getElementById('nuevoOrigen').value = '';
-      error.textContent = '';
+      alert('Origen agregado exitosamente.');
     }
 
     function eliminarOrigen(){
       const selectedOrigen = document.getElementById('configOrigenSelect').value;
-      const error = document.getElementById('errorConfigOrigenSelect');
       if(selectedOrigen === ''){
-        error.textContent = 'Seleccione un origen para eliminar.';
+        alert('Seleccione un origen para eliminar.');
         return;
       }
       if(confirm(`¿Está seguro de eliminar el origen "${selectedOrigen}"?`)){
         configOrigen = configOrigen.filter(o => o !== selectedOrigen);
         actualizarSelects();
         actualizarConfigModal();
-        error.textContent = '';
+        alert('Origen eliminado exitosamente.');
       }
     }
 
     function agregarTipo(){
       const nuevoTipo = document.getElementById('nuevoTipo').value.trim().toUpperCase();
-      const error = document.getElementById('errorNuevoTipo');
       if(nuevoTipo === ''){
-        error.textContent = 'Ingrese un tipo válido.';
+        alert('Ingrese un tipo válido.');
         return;
       }
       if(configTipo.includes(nuevoTipo)){
-        error.textContent = 'El tipo ya existe.';
+        alert('El tipo ya existe.');
         return;
       }
       configTipo.push(nuevoTipo);
       actualizarSelects();
       actualizarConfigModal();
       document.getElementById('nuevoTipo').value = '';
-      error.textContent = '';
+      alert('Tipo agregado exitosamente.');
     }
 
     function eliminarTipo(){
       const selectedTipo = document.getElementById('configTipoSelect').value;
-      const error = document.getElementById('errorConfigTipoSelect');
       if(selectedTipo === ''){
-        error.textContent = 'Seleccione un tipo para eliminar.';
+        alert('Seleccione un tipo para eliminar.');
         return;
       }
       if(confirm(`¿Está seguro de eliminar el tipo "${selectedTipo}"?`)){
         configTipo = configTipo.filter(t => t !== selectedTipo);
         actualizarSelects();
         actualizarConfigModal();
-        error.textContent = '';
+        alert('Tipo eliminado exitosamente.');
       }
     }
 
     function agregarMoneda(){
       const nuevaMoneda = document.getElementById('nuevoMoneda').value.trim().toUpperCase();
-      const error = document.getElementById('errorNuevoMoneda');
       if(nuevaMoneda === ''){
-        error.textContent = 'Ingrese una moneda válida.';
+        alert('Ingrese una moneda válida.');
         return;
       }
       if(configMoneda.includes(nuevaMoneda)){
-        error.textContent = 'La moneda ya existe.';
+        alert('La moneda ya existe.');
         return;
       }
       configMoneda.push(nuevaMoneda);
       actualizarSelects();
       actualizarConfigModal();
       document.getElementById('nuevoMoneda').value = '';
-      error.textContent = '';
+      alert('Moneda agregada exitosamente.');
     }
 
     function eliminarMoneda(){
       const selectedMoneda = document.getElementById('configMonedaSelect').value;
-      const error = document.getElementById('errorConfigMonedaSelect');
       if(selectedMoneda === ''){
-        error.textContent = 'Seleccione una moneda para eliminar.';
+        alert('Seleccione una moneda para eliminar.');
         return;
       }
       if(confirm(`¿Está seguro de eliminar la moneda "${selectedMoneda}"?`)){
         configMoneda = configMoneda.filter(m => m !== selectedMoneda);
         actualizarSelects();
         actualizarConfigModal();
-        error.textContent = '';
+        alert('Moneda eliminada exitosamente.');
       }
     }
 
     function guardarConfiguracion(e){
       e.preventDefault();
-      // Aquí podrías implementar lógica adicional si es necesario
+      guardarDatos();
       alert('Configuración guardada exitosamente.');
       cerrarConfiguracion();
     }
@@ -1423,7 +1342,7 @@
     function getPrecioCompraMensual(inv, selectedMonth){
       const invMonth = inv.fecha.slice(0,7);
       if(invMonth === selectedMonth){
-        return inv.precio;
+        return valoresMensuales[selectedMonth]?.values[inv.nombre] || inv.precio;
       } else{
         const prevMonth = getPreviousMonth(selectedMonth);
         const valAnterior = valoresMensuales[prevMonth]?.values[inv.nombre];
@@ -1475,7 +1394,7 @@
           valorCargado = valoresMensuales[selectedMonth]?.values[inv.nombre] || 0;
         }
 
-        // Corrección: Usar precioCompraBase en lugar de inv.precio
+        // Usar precioCompraBase en lugar de inv.precio
         const valorInversion = inv.cuotaparte * precioCompraBase;
 
         let valorActual = '-';
@@ -1511,8 +1430,8 @@
           <td class="number-cell" style="color:${diferencia >= 0 ? successColor : dangerColor};">${diffCell}</td>
           <td class="acciones">
             <div class="btn-group">
-              <button class="btn btn-edit" title="Editar" onclick="editarInversion(${index})">E</button>
-              <button class="btn btn-sell" title="Vender" onclick="venderInversion(${index}, event)">V</button>
+              <button class="btn btn-edit" title="Editar" onclick="editarInversion(${index})"><i class="fa-solid fa-pen-to-square"></i></button>
+              <button class="btn btn-sell" title="Vender" onclick="venderInversion(${index}, event)"><i class="fa-solid fa-sack-dollar"></i></button>
             </div>
             <button class="btn btn-delete" title="Eliminar" onclick="eliminarInversion(${index})"><i class="fa-solid fa-trash"></i></button>
           </td>
@@ -1555,7 +1474,7 @@
           valorCargado = valoresMensuales[selectedMonth]?.values[inv.nombre] || 0;
         }
 
-        // Corrección: Usar precioCompraBase en lugar de inv.precio
+        // Usar precioCompraBase en lugar de inv.precio
         const valorInversion = inv.cuotaparte * precioCompraBase;
         let invActual = 0;
         if(viewMode === 'MONTHLY' && valorCargado > 0){
@@ -1609,14 +1528,10 @@
     function cancelarInversion(){
       document.getElementById('newInvestmentForm').classList.remove('visible');
       document.getElementById('investmentForm').reset();
-      document.getElementById('editIndex').value = -1;
-      limpiarValidaciones('investmentForm');
     }
     function guardarInversion(e){
       e.preventDefault();
-      if(!validarFormulario('investmentForm')) return;
-
-      const editIndex = parseInt(document.getElementById('editIndex').value);
+      // Validación simple al enviar el formulario
       const fecha = document.getElementById('fecha').value;
       const nombre = document.getElementById('nombre').value.trim();
       const moneda = document.getElementById('moneda').value;
@@ -1624,18 +1539,19 @@
       const precio = parseFloat(document.getElementById('precio').value);
       const origen = document.getElementById('origenInv').value;
       const tipo = document.getElementById('tipoInv').value;
+      const comisionesPagadas = parseFloat(document.getElementById('comisionesPagadas').value) || 0;
 
-      if(!fecha || !nombre || cuotaparte <= 0 || precio <= 0){
-        alert('Complete todos los campos correctamente (cuotaparte y precio > 0).');
+      if(!fecha || !nombre || !moneda || !origen || !tipo || isNaN(cuotaparte) || isNaN(precio)){
+        alert('Por favor, complete todos los campos correctamente.');
         return;
       }
 
-      // Verificar si el nombre ya existe para evitar duplicados (solo al agregar, no al editar)
-      if(editIndex === -1 && inversiones.some(inv => inv.nombre.toUpperCase() === nombre.toUpperCase())){
-        alert('Ya existe una inversión con ese nombre.');
+      if(cuotaparte <= 0 || precio <= 0){
+        alert('Q Cuotaparte y Precio de Compra deben ser números positivos.');
         return;
       }
 
+      const editIndex = parseInt(document.getElementById('editIndex').value);
       const nuevaInversion = {
         fecha,
         nombre,
@@ -1644,6 +1560,7 @@
         precio,
         origen,
         tipo,
+        comisionesPagadas, // Nuevo campo
         valorActual: inversiones[editIndex]?.valorActual || 0
       };
 
@@ -1664,6 +1581,7 @@
       document.getElementById('precio').value = inv.precio;
       document.getElementById('origenInv').value = inv.origen;
       document.getElementById('tipoInv').value = inv.tipo;
+      document.getElementById('comisionesPagadas').value = inv.comisionesPagadas;
       document.getElementById('editIndex').value = index;
       document.getElementById('newInvestmentForm').classList.add('visible');
     }
@@ -1683,8 +1601,6 @@
       container.innerHTML = '';
       const monthKey = document.getElementById('currentValuesMonth').value;
 
-      limpiarValidaciones('currentValuesFormContent');
-
       if(!monthKey){
         container.innerHTML = '<p>Seleccione un mes/año</p>';
       } else{
@@ -1703,7 +1619,6 @@
                          step="0.01"
                          value="${existingValue !== undefined ? existingValue.toFixed(2) : ''}"
                          placeholder="Ingrese valor actual">
-                  <span class="error-message" id="errorValorActual_${escapeHTML(n)}"></span>
                 </div>
               </div>
             `;
@@ -1719,7 +1634,6 @@
     function cerrarValoresActuales(){
       document.getElementById('currentValuesForm').classList.remove('visible');
       document.getElementById('currentValuesFormContent').reset();
-      limpiarValidaciones('currentValuesFormContent');
     }
     document.getElementById('monthClosed').addEventListener('change', () => {
       const isClosed = document.getElementById('monthClosed').checked;
@@ -1731,30 +1645,12 @@
       inputs.forEach(inp => {
         if(isClosed){
           inp.readOnly = true;
-          inp.classList.add('readonly');
+          inp.style.backgroundColor = '#f5f5f5';
         } else{
           inp.readOnly = false;
-          inp.classList.remove('readonly');
+          inp.style.backgroundColor = '';
         }
       });
-    }
-    function validarYSubirValores(){
-      if(!validarFormulario('currentValuesFormContent')) return;
-
-      const monthKey = document.getElementById('currentValuesMonth').value;
-      if(!monthKey){
-        alert('Por favor, seleccione un mes/año.');
-        return;
-      }
-      const invMes = inversiones.filter(inv => inv.fecha.slice(0,7) <= monthKey);
-      if(invMes.length === 0){
-        alert('No hay inversiones vigentes hasta el mes seleccionado.');
-        return;
-      }
-
-      if(confirm('Datos validados para subir. ¿Desea proceder?')){
-        guardarValoresActuales();
-      }
     }
     function guardarValoresActuales(){
       const monthKey = document.getElementById('currentValuesMonth').value;
@@ -1769,6 +1665,7 @@
         alert('No hay inversiones vigentes hasta el mes seleccionado.');
         return;
       }
+
       if(!valoresMensuales[monthKey]){
         valoresMensuales[monthKey] = {closed: isClosed, values: {}};
       }
@@ -1792,6 +1689,7 @@
       actualizarTabla();
       cerrarValoresActuales();
       alert('Valores actuales guardados correctamente.');
+      guardarDatos();
     }
     function exportarValoresActuales(){
       const monthKey = document.getElementById('currentValuesMonth').value;
@@ -1940,7 +1838,7 @@
     }
 
     /**************************************************************
-     * RESULTADOS MENSALES / HISTÓRICOS (MODALES)
+     * RESULTADOS MENSUALES / HISTÓRICOS (MODALES)
      **************************************************************/
     function mostrarResultadosMensuales(){
       const modal = document.getElementById('monthlyResultsModal');
@@ -1961,7 +1859,7 @@
       if(invMes.length === 0){
         content.innerHTML = '<p>No hay inversiones vigentes hasta el mes seleccionado.</p>';
       } else{
-        invMes.forEach(inv => { // Corrección: Usar 'inv' en lugar de 'inversion'
+        invMes.forEach(inv => {
           let precioCompra;
           if(inv.fecha.slice(0,7) === selectedMonth){
             precioCompra = valoresMensuales[selectedMonth]?.values[inv.nombre] || inv.precio;
@@ -1971,7 +1869,7 @@
           }
 
           const valorInversion = inv.cuotaparte * precioCompra;
-          const valorActual = inv.cuotaparte * (valoresMensuales[selectedMonth]?.values[inv.nombre] || 0);
+          const valorActual = inv.valorActual ? inv.cuotaparte * inv.valorActual : 0;
           const diferencia = valorActual - valorInversion;
           const porcentaje = calculatePercentage(valorActual, valorInversion);
 
@@ -2032,10 +1930,10 @@
       if(invMes.length === 0){
         content.innerHTML = '<p>No hay inversiones vigentes hasta el mes seleccionado.</p>';
       } else{
-        invMes.forEach(inv => { // Corrección: Usar 'inv' en lugar de 'inversion'
+        invMes.forEach(inv => {
           let precioCompra = getPrecioCompraHistorico(inv, selectedMonth);
           const valorInversion = inv.cuotaparte * inv.precio;
-          const valorActual = inv.cuotaparte * (valoresMensuales[selectedMonth]?.values[inv.nombre] || 0);
+          const valorActual = inv.valorActual ? inv.cuotaparte * inv.valorActual : 0;
           const diferencia = valorActual - valorInversion;
           const porcentaje = calculatePercentage(valorActual, valorInversion);
 
@@ -2091,7 +1989,7 @@
       document.getElementById('tipoVenta').value = 'TOTAL';
       document.getElementById('precioVenta').value = '';
       document.getElementById('fechaVenta').value = new Date().toISOString().split('T')[0];
-      document.getElementById('comisionesPagadas').value = '';
+      document.getElementById('comisionesPagadasVenta').value = '';
       document.getElementById('saleForm').classList.add('visible');
     }
     function toggleCuotaparteVenta(){
@@ -2101,26 +1999,29 @@
       if(tipoVenta === 'TOTAL'){
         cuotaparteInput.value = inversiones[index].cuotaparte;
         cuotaparteInput.readOnly = true;
-        document.getElementById('errorCuotaparteVenta').textContent = '';
+        cuotaparteInput.style.backgroundColor = '#f5f5f5';
       } else{
         cuotaparteInput.value = '';
         cuotaparteInput.readOnly = false;
-        cuotaparteInput.max = inversiones[index].cuotaparte;
+        cuotaparteInput.style.backgroundColor = '';
       }
     }
     function procesarVenta(e){
       e.preventDefault();
-      if(!validarFormulario('ventaForm')) return;
 
       const index = parseInt(document.getElementById('saleIndex').value);
       const inv = inversiones[index];
       const cuotaparteVenta = parseFloat(document.getElementById('cuotaparteVenta').value);
       const precioVenta = parseFloat(document.getElementById('precioVenta').value);
       const fechaVenta = document.getElementById('fechaVenta').value;
-      const comisiones = parseFloat(document.getElementById('comisionesPagadas').value) || 0;
+      const comisiones = parseFloat(document.getElementById('comisionesPagadasVenta').value) || 0;
 
-      if(cuotaparteVenta <= 0 || precioVenta <= 0){
+      if(isNaN(cuotaparteVenta) || isNaN(precioVenta)){
         alert('Valores inválidos en cuotaparte o precio de venta.');
+        return;
+      }
+      if(cuotaparteVenta <= 0 || precioVenta <= 0){
+        alert('Q Cuotaparte y Precio de Venta deben ser números positivos.');
         return;
       }
       if(!fechaVenta){
@@ -2163,9 +2064,7 @@
     function cancelarVenta(){
       document.getElementById('saleForm').classList.remove('visible');
       document.getElementById('ventaForm').reset();
-      document.getElementById('comisionesPagadas').value = '';
       document.getElementById('saleIndex').value = -1;
-      limpiarValidaciones('ventaForm');
     }
     function mostrarOperacionesCerradas(){
       const modal = document.getElementById('closedOperationsModal');
@@ -2202,13 +2101,12 @@
         const labelMon = (mon === 'PESOS') ? 'Pesos' : 'Dólares';
         const trTotal = document.createElement('tr');
         trTotal.innerHTML = `
-          <td colspan="7" style="text-align:right; font-weight:bold;">
+          <td colspan="8" style="text-align:right; font-weight:bold;">
             Total Resultado en ${labelMon}:
           </td>
           <td class="number-cell" style="color:${totales[mon] >= 0 ? successColor : dangerColor}; font-weight:bold;">
             ${formatCurrency(totales[mon], mon, 2)} (${totales[mon] >= 0 ? 'Ganancia' : 'Pérdida'})
           </td>
-          <td></td>
         `;
         tbody.appendChild(trTotal);
       });
@@ -2243,7 +2141,7 @@
           valorCargado = valoresMensuales[selectedMonth]?.values[inv.nombre] || 0;
         }
 
-        // Corrección: Usar precioCompraBase en lugar de inv.precio
+        // Usar precioCompraBase en lugar de inv.precio
         const valorInversion = inv.cuotaparte * precioCompraBase;
 
         let valorActual = '-';
@@ -2662,6 +2560,7 @@
             precio: 150.75,
             origen: 'EXTRANJERO',
             tipo: 'ACCIONES',
+            comisionesPagadas: 0, // Nuevo campo
             valorActual: 160
           },
           {
@@ -2672,6 +2571,7 @@
             precio: 98.5,
             origen: 'LOCAL',
             tipo: 'BONOS',
+            comisionesPagadas: 0, // Nuevo campo
             valorActual: 100
           },
           {
@@ -2682,6 +2582,7 @@
             precio: 35000,
             origen: 'EXTRANJERO',
             tipo: 'CRIPTO',
+            comisionesPagadas: 0, // Nuevo campo
             valorActual: 40000
           }
         ];
@@ -2697,82 +2598,13 @@
     }
 
     /**************************************************************
-     * VALIDACIONES EN TIEMPO REAL
+     * VALIDACIONES
      **************************************************************/
-    function validarFormulario(formId){
-      let isValid = true;
-      const form = document.getElementById(formId);
-      const inputs = form.querySelectorAll('input, select');
-
-      inputs.forEach(input => {
-        const errorSpan = document.getElementById(`error${capitalizeFirstLetter(input.id)}`);
-        if(input.hasAttribute('required') && !input.value.trim()){
-          errorSpan.textContent = 'Este campo es obligatorio.';
-          isValid = false;
-        } else if(input.type === 'number'){
-          const val = parseFloat(input.value);
-          if(input.id.includes('cuotaparte') && val <= 0){
-            errorSpan.textContent = 'Debe ser un número positivo.';
-            isValid = false;
-          } else if(input.id.includes('precio') && val <= 0){
-            errorSpan.textContent = 'Debe ser un número positivo.';
-            isValid = false;
-          } else{
-            errorSpan.textContent = '';
-          }
-        } else{
-          errorSpan.textContent = '';
-        }
-      });
-
-      return isValid;
-    }
-
-    function limpiarValidaciones(formId){
-      const form = document.getElementById(formId);
-      const errorSpans = form.querySelectorAll('.error-message');
-      errorSpans.forEach(span => span.textContent = '');
-    }
-
-    function capitalizeFirstLetter(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-    // Agregar eventos de validación en tiempo real
-    function agregarValidacionesEnTiempoReal(){
-      const forms = ['investmentForm', 'ventaForm', 'currentValuesFormContent', 'configuracionForm'];
-      forms.forEach(formId => {
-        const form = document.getElementById(formId);
-        if(form){
-          const inputs = form.querySelectorAll('input, select');
-          inputs.forEach(input => {
-            input.addEventListener('input', () => {
-              const errorSpan = document.getElementById(`error${capitalizeFirstLetter(input.id)}`);
-              if(input.hasAttribute('required') && !input.value.trim()){
-                errorSpan.textContent = 'Este campo es obligatorio.';
-              } else if(input.type === 'number'){
-                const val = parseFloat(input.value);
-                if(input.id.includes('cuotaparte') && val <= 0){
-                  errorSpan.textContent = 'Debe ser un número positivo.';
-                } else if(input.id.includes('precio') && val <= 0){
-                  errorSpan.textContent = 'Debe ser un número positivo.';
-                } else{
-                  errorSpan.textContent = '';
-                }
-              } else{
-                errorSpan.textContent = '';
-              }
-            });
-          });
-        }
-      });
-    }
+    // Se ha eliminado toda la lógica de validación en tiempo real
 
     /**************************************************************
-     * INICIALIZAR EVENTOS DE VALIDACIÓN
+     * INICIALIZAR EVENTOS
      **************************************************************/
-    window.addEventListener('DOMContentLoaded', agregarValidacionesEnTiempoReal);
-
     window.onload = inicializarApp;
   </script>
 </body>

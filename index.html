@@ -14,6 +14,10 @@
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
   <!-- SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <!-- Bootstrap CSS para Toasts (opcional, si decides usarlos) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap JS para Toasts -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <style>
     /* Variables CSS */
     :root {
@@ -183,6 +187,18 @@
       min-width: 150px;
     }
 
+    /* Cambios para Modo Oscuro en Filtros */
+    body.dark-mode .filters label {
+      color: #ecf0f1;
+    }
+
+    body.dark-mode .filters select, 
+    body.dark-mode .filters input[type="month"] {
+      background-color: #3d566e;
+      color: #ecf0f1;
+      border: 1px solid #555;
+    }
+
     .filters select:focus, .filters input[type="month"]:focus {
       border-color: var(--accent);
       outline: none;
@@ -205,6 +221,12 @@
         flex: 0 0 100%;
         max-width: 100%;
         background-color: #ecf0f1;
+      }
+
+      body.dark-mode .filters select, 
+      body.dark-mode .filters input[type="month"] {
+        background-color: #3d566e;
+        color: #ecf0f1;
       }
     }
 
@@ -425,22 +447,28 @@
       align-items: center;
       justify-content: center;
       z-index: 3000; /* Por encima del menú lateral */
+      animation: fadeIn 0.3s ease-out;
     }
 
     .modal.visible {
       display: flex;
     }
 
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
     .modal-content {
       background-color: white;
       padding: 2rem;
-      border-radius: 5px;
+      border-radius: 10px;
       width: 90%;
       max-width: 800px;
       max-height: 90%;
       overflow-y: auto;
       position: relative;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       transition: background-color var(--transition-speed), color var(--transition-speed);
     }
 
@@ -472,8 +500,8 @@
       transform: translate(-50%, -50%);
       background-color: white;
       padding: 2rem;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       transition: background-color var(--transition-speed), color var(--transition-speed);
       z-index: 4000; /* Por encima de los modales */
       max-height: 90%;
@@ -500,7 +528,7 @@
 
     .form-group {
       flex: 1;
-      min-width: 300px; /* Aumentado para ocupar más espacio */
+      min-width: 200px; /* Aumentado para ocupar más espacio */
       margin-right: 1rem;
       margin-bottom: 0.5rem;
       position: relative;
@@ -509,18 +537,16 @@
     }
 
     .form-group label {
-      display: inline-block;
-      width: 200px; 
-      font-weight: bold;
-      margin-bottom: 0.3rem;
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
     }
 
     .form-group input, .form-group select {
-      width: calc(100% - 200px);
       padding: 0.5rem;
       border: 1px solid #ccc;
-      border-radius: 3px;
-      transition: border-color var(--transition-speed), background-color var(--transition-speed), color var(--transition-speed);
+      border-radius: 5px;
+      transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
       background-color: var(--background);
       color: var(--text);
       min-width: 15ch;
@@ -535,16 +561,19 @@
 
     .form-group input:focus, .form-group select:focus {
       border-color: var(--accent);
+      box-shadow: 0 0 5px rgba(30,55,153,0.5);
       outline: none;
     }
 
     .form-actions {
-      text-align: right;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 1rem;
     }
 
     .form-actions button {
-      padding: 0.5rem 1rem;
-      margin-left: 0.5rem;
+      padding: 0.6rem 1.2rem;
       border: none;
       border-radius: 5px;
       cursor: pointer;
@@ -568,96 +597,165 @@
       background-color: #a93226;
     }
 
-    .form-group.comisiones-pagadas {
-      max-width: 25ch; 
+    /* Estilos para el modal mejorado */
+    #currentValuesForm {
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      background-color: white;
+      padding: 2rem;
+      transition: background-color var(--transition-speed), color var(--transition-speed);
     }
 
-    .form-group.comisiones-pagadas input {
-      width: 100%; 
+    body.dark-mode #currentValuesForm {
+      background-color: #34495e;
+      color: #ecf0f1;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
     }
 
-    @media (max-width: 600px) {
-      .summary {
-        flex-direction: column;
-        align-items: center;
-      }
-      .summary-box {
-        width: 100%;
-      }
-      .form-row {
-        flex-direction: column;
-      }
-      .form-group {
-        margin-right: 0;
-        min-width: 100%;
-      }
-      .rendimiento-charts-container {
-        flex-direction: column;
-        align-items: center;
-      }
-      .actions-top, .actions-middle, .actions-bottom, .actions-extra {
-        flex-direction: column;
-      }
+    #currentValuesForm h3 {
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      text-align: center;
     }
 
-    /* Gráfico Rendimiento */
-    .rendimiento-charts-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-around;
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-
-    .chart-wrapper {
-      width: 45%;
+    /* Interruptor Mejorado */
+    .toggle-switch {
       position: relative;
+      width: 50px;
+      display: inline-block;
     }
 
-    .chart-legend {
+    .toggle-switch input {
+      display: none;
+    }
+
+    .toggle-switch label {
       position: absolute;
       top: 0;
-      right: -150px;
-      background-color: rgba(255, 255, 255, 0.9);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .toggle-switch label::after {
+      content: "";
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 4px;
+      top: 4px;
+      background-color: white;
+      border-radius: 50%;
+      transition: transform 0.3s, background-color 0.3s;
+    }
+
+    .toggle-switch input:checked + label {
+      background-color: var(--success);
+    }
+
+    .toggle-switch input:checked + label::after {
+      transform: translateX(26px);
+    }
+
+    /* Cambios para Visibilidad del Interruptor en Modo Oscuro */
+    body.dark-mode .toggle-switch label {
+      background-color: #555;
+    }
+
+    body.dark-mode .toggle-switch input:checked + label::after {
+      background-color: #ecf0f1;
+    }
+
+    /* Estilos para botones */
+    .btn {
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color var(--transition-speed), transform var(--transition-speed);
+    }
+
+    .btn-primary {
+      background-color: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: darken(var(--accent), 10%);
+    }
+
+    .btn-secondary {
+      background-color: var(--secondary);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: darken(var(--secondary), 10%);
+    }
+
+    .btn-success {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: darken(var(--success), 10%);
+    }
+
+    .btn-danger {
+      background-color: var(--danger);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #a93226;
+    }
+
+    /* Estilos para la búsqueda */
+    #searchInversiones {
+      width: 100%;
       padding: 0.5rem;
       border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-      max-height: 90%;
-      overflow-y: auto;
+      border: 1px solid #ccc;
+      transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
     }
 
-    body.dark-mode .chart-legend {
-      background-color: rgba(52, 73, 94, 0.9);
-      color: #ecf0f1;
+    #searchInversiones:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 5px rgba(30,55,153,0.5);
+      outline: none;
     }
 
-    .chart-legend ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    /* Animaciones para botones */
+    .btn {
+      transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
     }
 
-    .chart-legend li {
-      display: flex;
-      align-items: center;
-      margin-bottom: 0.5rem;
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     }
 
-    .chart-legend span.color-box {
-      display: inline-block;
-      width: 15px;
-      height: 15px;
-      margin-right: 0.5rem;
-      border-radius: 3px;
+    /* Toasts */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 5000;
     }
 
-    .chart-legend span.label {
-      flex: 1;
+    /* Mejoras en la Tabla de Operaciones Cerradas */
+    #closedOperationsBody tr.selected {
+      background-color: rgba(30, 55, 153, 0.3);
     }
 
-    .chart-legend span.percentage {
-      margin-left: auto;
-      font-weight: bold;
+    body.dark-mode #closedOperationsBody tr.selected {
+      background-color: rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
@@ -821,6 +919,9 @@
         </tbody>
       </table>
 
+      <!-- Paginación -->
+      <div id="paginationControls" style="display: flex; justify-content: center; margin-top: 1rem;"></div>
+
       <!-- Formulario para Agregar/Editar Inversión -->
       <div id="newInvestmentForm" class="form-section">
         <form id="investmentForm" onsubmit="guardarInversion(event)">
@@ -838,7 +939,9 @@
             <div class="form-group">
               <label for="moneda">Moneda:</label>
               <select id="moneda" required>
-                <!-- Opciones dinámicas -->
+                <option value="">Seleccione Moneda</option>
+                <option value="PESOS">PESOS</option>
+                <option value="DOLARES">DOLARES</option>
               </select>
             </div>
           </div>
@@ -858,19 +961,21 @@
             <div class="form-group" style="max-width: 25ch;">
               <label for="origenInv">Origen:</label>
               <select id="origenInv" required>
+                <option value="">Seleccione Origen</option>
                 <!-- Opciones dinámicas -->
               </select>
             </div>
             <div class="form-group" style="max-width: 25ch;">
               <label for="tipoInv">Tipo:</label>
               <select id="tipoInv" required>
+                <option value="">Seleccione Tipo</option>
                 <!-- Opciones dinámicas -->
               </select>
             </div>
           </div>
           <div class="form-actions">
-            <button type="submit">Guardar</button>
-            <button type="button" class="cancel-button" onclick="cancelarInversion()">Cancelar</button>
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <button type="button" class="btn btn-danger" onclick="cancelarInversion()">Cancelar</button>
           </div>
         </form>
       </div>
@@ -912,48 +1017,51 @@
             </div>
           </div>
           <div class="form-actions">
-            <button type="submit">Procesar Venta</button>
-            <button type="button" class="cancel-button" onclick="cancelarVenta()">Cancelar</button>
+            <button type="submit" class="btn btn-success">Procesar Venta</button>
+            <button type="button" class="btn btn-danger" onclick="cancelarVenta()">Cancelar</button>
           </div>
         </form>
       </div>
 
-      <!-- Formulario para Ingresar Valores Actuales -->
+      <!-- Formulario para Ingresar Valores Actuales Mejorado -->
       <div id="currentValuesForm" class="form-section">
         <form id="currentValuesFormContent" onsubmit="guardarValoresActuales(event)">
           <h3>Ingresar Valores Actuales</h3>
           <div class="form-row">
             <div class="form-group">
               <label for="currentValuesMonth">Mes/Año:</label>
-              <input type="month" id="currentValuesMonth" required>
+              <input type="month" id="currentValuesMonth" required onchange="cargarValores()">
             </div>
             <div class="form-group">
               <label for="monthClosed">Mes Cerrado:</label>
-              <div style="display: flex; align-items: center;">
+              <div class="toggle-switch">
                 <input type="checkbox" id="monthClosed" onchange="toggleFieldsBasedOnClosed(this.checked)">
-                <label for="monthClosed" style="margin-left: 0.5rem;">Sí</label>
+                <label for="monthClosed"></label>
               </div>
+            </div>
+          </div>
+          <div class="form-row actions-row">
+            <div class="form-group">
+              <button type="button" class="btn btn-primary" onclick="cargarValores()">Cargar Valores</button>
+            </div>
+            <div class="form-group">
+              <button type="button" class="btn btn-secondary" onclick="descargarTemplateValores()">Descargar Plantilla</button>
+              <button type="button" class="btn btn-secondary" onclick="subirTemplateValores()">Subir Plantilla</button>
+              <input type="file" id="uploadTemplateInput" accept=".xlsx, .xls" style="display:none" onchange="procesarArchivoTemplateValores(event)">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <!-- Botón para cargar las inversiones según el mes -->
-              <button type="button" onclick="cargarValores()">Cargar Valores</button>
-            </div>
-            <div class="form-group">
-              <!-- Botones para descargar y subir plantilla -->
-              <button type="button" onclick="descargarTemplateValores()">Descargar Plantilla</button>
-              <button type="button" onclick="subirTemplateValores()">Subir Plantilla</button>
-              <!-- Input para subir archivo Excel -->
-              <input type="file" id="uploadTemplateInput" accept=".xlsx, .xls" style="display:none" onchange="procesarArchivoTemplateValores(event)">
+              <label for="searchInversiones">Buscar Inversión:</label>
+              <input type="text" id="searchInversiones" placeholder="Escribe para buscar..." onkeyup="filtrarInversiones()">
             </div>
           </div>
           <div id="currentValuesContent">
             <!-- Campos dinámicos para cada inversión se generan aquí -->
           </div>
           <div class="form-actions">
-            <button type="submit">Guardar Valores</button>
-            <button type="button" class="cancel-button" onclick="cerrarValoresActuales()">Cancelar</button>
+            <button type="submit" class="btn btn-success">Guardar Valores</button>
+            <button type="button" class="btn btn-danger" onclick="cerrarValoresActuales()">Cancelar</button>
           </div>
         </form>
       </div>
@@ -961,7 +1069,7 @@
   </main>
 
   <footer>
-    &copy; 2024 Portfolio de Inversiones. Todos los derechos reservados.
+    &copy; 2025 Portfolio de Inversiones. Todos los derechos reservados.
   </footer>
 
   <!-- Modales Adicionales -->
@@ -977,6 +1085,7 @@
           <div class="form-group">
             <label for="configOrigenSelect">Eliminar Origen:</label>
             <select id="configOrigenSelect">
+              <option value="">Seleccione Origen</option>
               <!-- Opciones dinámicas -->
             </select>
           </div>
@@ -985,14 +1094,17 @@
             <input type="text" id="nuevoOrigen" placeholder="Nuevo Origen">
           </div>
         </div>
-        <button type="button" onclick="agregarOrigen()">Agregar Origen</button>
-        <button type="button" onclick="eliminarOrigen()">Eliminar Origen</button>
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" onclick="agregarOrigen()">Agregar Origen</button>
+          <button type="button" class="btn btn-danger" onclick="eliminarOrigen()">Eliminar Origen</button>
+        </div>
 
         <h4>Tipos</h4>
         <div class="form-row">
           <div class="form-group">
             <label for="configTipoSelect">Eliminar Tipo:</label>
             <select id="configTipoSelect">
+              <option value="">Seleccione Tipo</option>
               <!-- Opciones dinámicas -->
             </select>
           </div>
@@ -1001,14 +1113,17 @@
             <input type="text" id="nuevoTipo" placeholder="Nuevo Tipo">
           </div>
         </div>
-        <button type="button" onclick="agregarTipo()">Agregar Tipo</button>
-        <button type="button" onclick="eliminarTipo()">Eliminar Tipo</button>
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" onclick="agregarTipo()">Agregar Tipo</button>
+          <button type="button" class="btn btn-danger" onclick="eliminarTipo()">Eliminar Tipo</button>
+        </div>
 
         <h4>Monedas</h4>
         <div class="form-row">
           <div class="form-group">
             <label for="configMonedaSelect">Eliminar Moneda:</label>
             <select id="configMonedaSelect">
+              <option value="">Seleccione Moneda</option>
               <!-- Opciones dinámicas -->
             </select>
           </div>
@@ -1017,12 +1132,14 @@
             <input type="text" id="nuevoMoneda" placeholder="Nueva Moneda">
           </div>
         </div>
-        <button type="button" onclick="agregarMoneda()">Agregar Moneda</button>
-        <button type="button" onclick="eliminarMoneda()">Eliminar Moneda</button>
+        <div class="form-actions">
+          <button type="button" class="btn btn-primary" onclick="agregarMoneda()">Agregar Moneda</button>
+          <button type="button" class="btn btn-danger" onclick="eliminarMoneda()">Eliminar Moneda</button>
+        </div>
 
         <div class="form-actions">
-          <button type="submit">Guardar Configuración</button>
-          <button type="button" class="cancel-button" onclick="cerrarConfiguracion()">Cancelar</button>
+          <button type="submit" class="btn btn-success">Guardar Configuración</button>
+          <button type="button" class="btn btn-danger" onclick="cerrarConfiguracion()">Cancelar</button>
         </div>
       </form>
     </div>
@@ -1033,9 +1150,13 @@
     <div class="modal-content">
       <button class="close-button" onclick="cerrarModalOperaciones()">&times;</button>
       <h3>Operaciones Cerradas</h3>
+      <div class="actions-extra" style="justify-content: flex-end; margin-bottom: 1rem;">
+        <button class="btn btn-danger" onclick="borrarOperacionesCerradas()">Eliminar Operaciones Seleccionadas</button>
+      </div>
       <table>
         <thead>
           <tr>
+            <th><input type="checkbox" id="selectAllClosedOps" onclick="seleccionarTodasOperaciones(this.checked)"></th>
             <th>Fecha Venta</th>
             <th>Nombre</th>
             <th>Moneda</th>
@@ -1118,6 +1239,11 @@
     </div>
   </div>
 
+  <!-- Toast Container para Notificaciones -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+    <!-- Toastes se generan dinámicamente -->
+  </div>
+
   <!-- AQUÍ COMIENZA TODO EL JAVASCRIPT DE LA APLICACIÓN -->
   <script>
     /**************************************************************
@@ -1132,9 +1258,9 @@
     let operacionesCerradas = [];
     let valoresMensuales = {};
 
-    let configOrigen = ["LOCAL","EXTRANJERO"];
-    let configTipo = ["ACCIONES","BONOS","FONDOS MUTUOS","CRIPTO"];
-    let configMoneda = ["PESOS","DOLARES"];
+    let configOrigen = [];
+    let configTipo = [];
+    let configMoneda = [];
 
     let totalesGlobal = null;
 
@@ -1348,103 +1474,100 @@
     function agregarOrigen(){
       const nuevoOrigen = document.getElementById('nuevoOrigen').value.trim().toUpperCase();
       if(nuevoOrigen === ''){
-        alert('Ingrese un origen válido.');
+        mostrarToast('Ingrese un origen válido.', 'danger');
         return;
       }
       if(configOrigen.includes(nuevoOrigen)){
-        alert('El origen ya existe.');
+        mostrarToast('El origen ya existe.', 'danger');
         return;
       }
       configOrigen.push(nuevoOrigen);
-      nextInvestmentId++; // Incrementar ID para mantener unicidad
       actualizarSelects();
       actualizarConfigModal();
       document.getElementById('nuevoOrigen').value = '';
-      alert('Origen agregado exitosamente.');
+      mostrarToast('Origen agregado exitosamente.', 'success');
     }
 
     function eliminarOrigen(){
       const selectedOrigen = document.getElementById('configOrigenSelect').value;
       if(selectedOrigen === ''){
-        alert('Seleccione un origen para eliminar.');
+        mostrarToast('Seleccione un origen para eliminar.', 'warning');
         return;
       }
       if(confirm(`¿Está seguro de eliminar el origen "${selectedOrigen}"?`)){
         configOrigen = configOrigen.filter(o => o !== selectedOrigen);
         actualizarSelects();
         actualizarConfigModal();
-        alert('Origen eliminado exitosamente.');
+        mostrarToast('Origen eliminado exitosamente.', 'success');
       }
     }
 
     function agregarTipo(){
       const nuevoTipo = document.getElementById('nuevoTipo').value.trim().toUpperCase();
       if(nuevoTipo === ''){
-        alert('Ingrese un tipo válido.');
+        mostrarToast('Ingrese un tipo válido.', 'danger');
         return;
       }
       if(configTipo.includes(nuevoTipo)){
-        alert('El tipo ya existe.');
+        mostrarToast('El tipo ya existe.', 'danger');
         return;
       }
       configTipo.push(nuevoTipo);
-      nextInvestmentId++; // Incrementar ID para mantener unicidad
       actualizarSelects();
       actualizarConfigModal();
       document.getElementById('nuevoTipo').value = '';
-      alert('Tipo agregado exitosamente.');
+      mostrarToast('Tipo agregado exitosamente.', 'success');
     }
 
     function eliminarTipo(){
       const selectedTipo = document.getElementById('configTipoSelect').value;
       if(selectedTipo === ''){
-        alert('Seleccione un tipo para eliminar.');
+        mostrarToast('Seleccione un tipo para eliminar.', 'warning');
         return;
       }
       if(confirm(`¿Está seguro de eliminar el tipo "${selectedTipo}"?`)){
         configTipo = configTipo.filter(t => t !== selectedTipo);
         actualizarSelects();
         actualizarConfigModal();
-        alert('Tipo eliminado exitosamente.');
+        mostrarToast('Tipo eliminado exitosamente.', 'success');
       }
     }
 
     function agregarMoneda(){
       const nuevaMoneda = document.getElementById('nuevoMoneda').value.trim().toUpperCase();
       if(nuevaMoneda === ''){
-        alert('Ingrese una moneda válida.');
+        mostrarToast('Ingrese una moneda válida.', 'danger');
         return;
       }
       if(configMoneda.includes(nuevaMoneda)){
-        alert('La moneda ya existe.');
+        mostrarToast('La moneda ya existe.', 'danger');
         return;
       }
       configMoneda.push(nuevaMoneda);
-      nextInvestmentId++; // Incrementar ID para mantener unicidad
       actualizarSelects();
       actualizarConfigModal();
       document.getElementById('nuevoMoneda').value = '';
-      alert('Moneda agregada exitosamente.');
+      mostrarToast('Moneda agregada exitosamente.', 'success');
     }
 
     function eliminarMoneda(){
       const selectedMoneda = document.getElementById('configMonedaSelect').value;
       if(selectedMoneda === ''){
-        alert('Seleccione una moneda para eliminar.');
+        mostrarToast('Seleccione una moneda para eliminar.', 'warning');
         return;
       }
       if(confirm(`¿Está seguro de eliminar la moneda "${selectedMoneda}"?`)){
         configMoneda = configMoneda.filter(m => m !== selectedMoneda);
         actualizarSelects();
         actualizarConfigModal();
-        alert('Moneda eliminada exitosamente.');
+        mostrarToast('Moneda eliminada exitosamente.', 'success');
       }
     }
 
     function guardarConfiguracion(e){
       e.preventDefault();
       guardarDatos();
-      alert('Configuración guardada exitosamente.');
+      mostrarToast('Configuración guardada exitosamente.', 'success');
       cerrarConfiguracion();
     }
 
@@ -1509,7 +1632,15 @@
         filtradas = filtradas.filter(inv => inv.fecha.slice(0,7) <= selectedMonth);
       }
 
-      filtradas.forEach(inv => {
+      // Optimización para grandes cantidades de inversiones: paginación simple
+      const itemsPerPage = 10;
+      const currentPage = parseInt(document.getElementById('currentPage')?.value) || 1;
+      const totalPages = Math.ceil(filtradas.length / itemsPerPage);
+      const startIdx = (currentPage - 1) * itemsPerPage;
+      const endIdx = startIdx + itemsPerPage;
+      const paginatedInversiones = filtradas.slice(startIdx, endIdx);
+
+      paginatedInversiones.forEach(inv => {
         let precioCompraBase = inv.precio;   // Valor base
         let valorInversion = inv.cuotaparte * inv.precio; // default
         let valorCargado = 0;
@@ -1598,8 +1729,72 @@
         tbody.appendChild(tr);
       });
 
+      // Paginación
+      agregarPaginacion(filtradas.length, itemsPerPage, currentPage);
+
       actualizarResumen(filtradas);
       guardarDatos();
+    }
+
+    function agregarPaginacion(totalItems, itemsPerPage, currentPage){
+      const mainSection = document.querySelector('.tables');
+      let pagination = document.getElementById('paginationControls');
+      if(!pagination){
+        pagination = document.createElement('div');
+        pagination.id = 'paginationControls';
+        pagination.style.display = 'flex';
+        pagination.style.justifyContent = 'center';
+        pagination.style.marginTop = '1rem';
+        mainSection.appendChild(pagination);
+      }
+      pagination.innerHTML = '';
+
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      if(totalPages <=1 ) return;
+
+      // Botón Anterior
+      const prevBtn = document.createElement('button');
+      prevBtn.className = 'btn btn-secondary';
+      prevBtn.innerText = 'Anterior';
+      prevBtn.disabled = currentPage === 1;
+      prevBtn.onclick = () => cambiarPagina(currentPage - 1);
+      pagination.appendChild(prevBtn);
+
+      // Botones de Página
+      for(let i=1; i<= totalPages; i++){
+        const pageBtn = document.createElement('button');
+        pageBtn.className = 'btn btn-primary';
+        pageBtn.innerText = i;
+        if(i === currentPage){
+          pageBtn.disabled = true;
+        }
+        pageBtn.onclick = () => cambiarPagina(i);
+        pagination.appendChild(pageBtn);
+      }
+
+      // Botón Siguiente
+      const nextBtn = document.createElement('button');
+      nextBtn.className = 'btn btn-secondary';
+      nextBtn.innerText = 'Siguiente';
+      nextBtn.disabled = currentPage === totalPages;
+      nextBtn.onclick = () => cambiarPagina(currentPage + 1);
+      pagination.appendChild(nextBtn);
+    }
+
+    function cambiarPagina(nuevaPagina){
+      if(nuevaPagina < 1 || nuevaPagina > Math.ceil(inversiones.length / 10)) return;
+      // Crear un input oculto para almacenar la página actual
+      let currentPageInput = document.getElementById('currentPage');
+      if(!currentPageInput){
+        currentPageInput = document.createElement('input');
+        currentPageInput.type = 'hidden';
+        currentPageInput.id = 'currentPage';
+        currentPageInput.value = nuevaPagina;
+        document.body.appendChild(currentPageInput);
+      } else{
+        currentPageInput.value = nuevaPagina;
+      }
+      actualizarTabla();
     }
 
     function actualizarResumen(listaFiltrada){
@@ -1714,12 +1909,12 @@
       const comisionesPagadas = parseFloat(document.getElementById('comisionesPagadas').value) || 0;
 
       if(!fecha || !nombre || !moneda || !origen || !tipo || isNaN(cuotaparte) || isNaN(precio)){
-        alert('Por favor, complete todos los campos correctamente.');
+        mostrarToast('Por favor, complete todos los campos correctamente.', 'warning');
         return;
       }
 
       if(cuotaparte <= 0 || precio <= 0){
-        alert('Q Cuotaparte y Precio de Compra deben ser números positivos.');
+        mostrarToast('Q Cuotaparte y Precio de Compra deben ser números positivos.', 'warning');
         return;
       }
 
@@ -1763,11 +1958,13 @@
       }
       actualizarTabla();
       cancelarInversion();
+      mostrarToast('Inversión guardada exitosamente.', 'success');
+      guardarDatos();
     }
     function editarInversionPorID(id){
       const inv = inversiones.find(inv => inv.id == id);
       if(!inv){
-        alert('Inversión no encontrada.');
+        mostrarToast('Inversión no encontrada.', 'danger');
         return;
       }
       document.getElementById('fecha').value = inv.fecha;
@@ -1800,8 +1997,9 @@
           });
 
           actualizarTabla();
+          mostrarToast('Inversión eliminada exitosamente.', 'success');
         } else{
-          alert('Inversión no encontrada.');
+          mostrarToast('Inversión no encontrada.', 'danger');
         }
       }
     }
@@ -1819,11 +2017,15 @@
       document.getElementById('currentValuesContent').innerHTML = '';
       document.getElementById('monthClosed').checked = false;
       document.getElementById('currentValuesMonth').value = '';
+      document.getElementById('searchInversiones').value = '';
+      document.querySelector('.form-actions .btn-success').disabled = false;
     }
     function cerrarValoresActuales(){
       document.getElementById('currentValuesForm').classList.remove('visible');
       document.getElementById('currentValuesFormContent').reset();
       document.getElementById('currentValuesContent').innerHTML = '';
+      document.getElementById('searchInversiones').value = '';
+      document.querySelector('.form-actions .btn-success').disabled = false;
     }
     function toggleFieldsBasedOnClosed(isClosed){
       const container = document.getElementById('currentValuesContent');
@@ -1843,43 +2045,50 @@
       const monthKey = document.getElementById('currentValuesMonth').value;
 
       if(!monthKey){
-        alert('Por favor, seleccione un mes/año.');
+        mostrarToast('Por favor, seleccione un mes/año.', 'warning');
         return;
       }
       const invMes = inversiones.filter(inv => inv.fecha.slice(0,7) <= monthKey);
       if(invMes.length === 0){
-        alert('No hay inversiones vigentes hasta el mes seleccionado.');
+        mostrarToast('No hay inversiones vigentes hasta el mes seleccionado.', 'warning');
         return;
       }
 
-      const nombresUnicos = [...new Set(invMes.map(i => i.id))];
       const container = document.getElementById('currentValuesContent');
       container.innerHTML = '';
 
-      nombresUnicos.forEach(id => {
-        const inv = inversiones.find(i => i.id == id);
-        if(inv){
-          const existingValue = valoresMensuales[monthKey]?.values[inv.id];
-          container.innerHTML += `
-            <div class="form-row">
-              <div class="form-group">
-                <label for="valorActual_${escapeHTML(inv.id)}">${escapeHTML(inv.nombre)}:</label>
-                <input type="number" id="valorActual_${escapeHTML(inv.id)}"
-                       step="0.00001"
-                       value="${existingValue !== undefined ? existingValue.toFixed(5) : ''}"
-                       placeholder="Ingrese valor actual">
-              </div>
+      invMes.forEach(inv => {
+        const existingValue = valoresMensuales[monthKey]?.values[inv.id];
+        container.innerHTML += `
+          <div class="form-row">
+            <div class="form-group">
+              <label for="valorActual_${escapeHTML(inv.id)}">${escapeHTML(inv.nombre)}:</label>
+              <input type="number" id="valorActual_${escapeHTML(inv.id)}"
+                     step="0.00001"
+                     value="${existingValue !== undefined ? existingValue.toFixed(5) : ''}"
+                     placeholder="Ingrese valor actual">
             </div>
-          `;
-        }
+          </div>
+        `;
       });
 
       const isClosed = valoresMensuales[monthKey]?.closed || false;
       document.getElementById('monthClosed').checked = isClosed;
       toggleFieldsBasedOnClosed(isClosed);
+    }
+    function filtrarInversiones(){
+      const searchTerm = document.getElementById('searchInversiones').value.toLowerCase();
+      const container = document.getElementById('currentValuesContent');
+      const rows = container.querySelectorAll('.form-row');
 
-      form.classList.add('visible');
-      window.scrollTo(0, 0);
+      rows.forEach(row => {
+        const label = row.querySelector('label').textContent.toLowerCase();
+        if(label.includes(searchTerm)){
+          row.style.display = '';
+        } else{
+          row.style.display = 'none';
+        }
+      });
     }
     function guardarValoresActuales(e){
       e.preventDefault();
@@ -1887,12 +2096,12 @@
       const isClosed = document.getElementById('monthClosed').checked;
 
       if(!monthKey){
-        alert('Por favor, seleccione un mes/año.');
+        mostrarToast('Por favor, seleccione un mes/año.', 'warning');
         return;
       }
       const invMes = inversiones.filter(inv => inv.fecha.slice(0,7) <= monthKey);
       if(invMes.length === 0){
-        alert('No hay inversiones vigentes hasta el mes seleccionado.');
+        mostrarToast('No hay inversiones vigentes hasta el mes seleccionado.', 'warning');
         return;
       }
 
@@ -1901,23 +2110,31 @@
       }
       valoresMensuales[monthKey].closed = isClosed;
 
-      const nombresUnicos = [...new Set(invMes.map(i => i.id))];
-      nombresUnicos.forEach(id => {
-        const input = document.getElementById(`valorActual_${escapeHTML(id)}`);
+      const invFiltradas = inversiones.filter(inv => inv.fecha.slice(0,7) <= monthKey);
+      let allValid = true;
+      invFiltradas.forEach(inv => {
+        const input = document.getElementById(`valorActual_${escapeHTML(inv.id)}`);
         if(input){
-          const val = parseFloat(input.value || 0);
-          if(!isNaN(val) && val > 0){
-            valoresMensuales[monthKey].values[id] = parseFloat(val.toFixed(5)); // Hasta 5 decimales
-            const inv = inversiones.find(inv => inv.id == id);
-            if(inv){
-              inv.valorActual = val;
-            }
+          const val = parseFloat(input.value);
+          if(isNaN(val) || val <= 0){
+            allValid = false;
+            input.style.borderColor = 'var(--danger)';
+          } else{
+            input.style.borderColor = '#ccc';
+            valoresMensuales[monthKey].values[inv.id] = parseFloat(val.toFixed(5)); // Hasta 5 decimales
+            inv.valorActual = val;
           }
         }
       });
+
+      if(!allValid){
+        mostrarToast('Por favor, corrige los valores inválidos.', 'danger');
+        return;
+      }
+
       actualizarTabla();
       cerrarValoresActuales();
-      alert('Valores actuales guardados correctamente.');
+      mostrarToast('Valores actuales guardados correctamente.', 'success');
       guardarDatos();
     }
 
@@ -1935,8 +2152,8 @@
 
       inversiones.forEach(inv => {
         let precioCompraBase = inv.precio;
-        let valorCargado = 0;
         let valorInversion = inv.cuotaparte * inv.precio;
+        let valorCargado = 0;
         let valorActual = '-';
         let diferencia = '-';
         let porcentaje = null;
@@ -2074,6 +2291,7 @@
       }
 
       XLSX.writeFile(wb, "Portfolio_Inversiones_Completo.xlsx");
+      mostrarToast('Exportación a Excel completada.', 'success');
     }
 
     /**************************************************************
@@ -2084,13 +2302,13 @@
     function descargarTemplateValores(){
       const selectedMonth = document.getElementById('currentValuesMonth').value;
       if(!selectedMonth){
-        alert('Por favor, seleccione un mes/año para descargar la plantilla.');
+        mostrarToast('Por favor, seleccione un mes/año para descargar la plantilla.', 'warning');
         return;
       }
 
       const inversionesFiltradas = inversiones.filter(inv => inv.fecha.slice(0,7) <= selectedMonth);
       if(inversionesFiltradas.length === 0){
-        alert('No hay inversiones cargadas para el mes/año seleccionado.');
+        mostrarToast('No hay inversiones cargadas para el mes/año seleccionado.', 'warning');
         return;
       }
 
@@ -2104,6 +2322,7 @@
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Template Valores");
       XLSX.writeFile(wb, `Template_Valores_${selectedMonth}.xlsx`);
+      mostrarToast('Plantilla descargada exitosamente.', 'success');
     }
 
     function subirTemplateValores(){
@@ -2122,7 +2341,7 @@
         try {
           workbook = XLSX.read(data, {type: 'binary'});
         } catch(error){
-          alert('Error al leer el archivo. Asegúrate de que el formato sea correcto.');
+          mostrarToast('Error al leer el archivo. Asegúrate de que el formato sea correcto.', 'danger');
           return;
         }
 
@@ -2131,7 +2350,7 @@
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {header:1});
 
         if(jsonData.length < 2){
-          alert('El archivo no contiene datos.');
+          mostrarToast('El archivo no contiene datos.', 'warning');
           return;
         }
 
@@ -2139,7 +2358,7 @@
         if(headers.length < 2 ||
            headers[0] !== "Nombre de la Inversión" ||
            headers[1] !== "Valor Actual"){
-          alert('La plantilla no tiene el formato correcto. Debe incluir "Nombre de la Inversión" y "Valor Actual".');
+          mostrarToast('La plantilla no tiene el formato correcto. Debe incluir "Nombre de la Inversión" y "Valor Actual".', 'danger');
           return;
         }
 
@@ -2147,7 +2366,7 @@
 
         const monthKey = document.getElementById('currentValuesMonth').value;
         if(!monthKey){
-          alert('Selecciona un mes/año antes de subir la plantilla.');
+          mostrarToast('Selecciona un mes/año antes de subir la plantilla.', 'warning');
           return;
         }
 
@@ -2155,6 +2374,7 @@
           valoresMensuales[monthKey] = {closed: false, values: {}};
         }
 
+        let allValid = true;
         dataRows.forEach(row => {
           const [nombre, valor] = row;
           if(nombre && valor){
@@ -2164,18 +2384,24 @@
               if(!isNaN(val) && val > 0){
                 valoresMensuales[monthKey].values[inv.id] = parseFloat(val.toFixed(5)); // Hasta 5 decimales
                 inv.valorActual = val;
+              } else {
+                allValid = false;
               }
             }
           }
         });
 
-        actualizarTabla();
-        alert('Valores actualizados correctamente desde la plantilla.');
-        guardarDatos();
+        if(allValid){
+          actualizarTabla();
+          mostrarToast('Valores actualizados correctamente desde la plantilla.', 'success');
+          guardarDatos();
+        } else{
+          mostrarToast('Algunos valores son inválidos. Revisa la plantilla.', 'danger');
+        }
         document.getElementById('uploadTemplateInput').value = '';
       };
       reader.onerror = function(){
-        alert('Error al leer el archivo.');
+        mostrarToast('Error al leer el archivo.', 'danger');
       };
       reader.readAsBinaryString(file);
     }
@@ -2189,18 +2415,18 @@
       const content = document.getElementById('monthlyResultsContent');
 
       if(!modal){
-        alert('El modal de Resultados Mensuales no está definido en HTML.');
+        mostrarToast('El modal de Resultados Mensuales no está definido en HTML.', 'danger');
         return;
       }
 
       const selectedMonth = document.getElementById('monthYear').value;
 
       if(!selectedMonth){
-        alert('Seleccione un mes/año en los filtros de arriba.');
+        mostrarToast('Seleccione un mes/año en los filtros de arriba.', 'warning');
         return;
       }
       if(!valoresMensuales[selectedMonth]?.closed){
-        alert('El mes seleccionado no está cerrado. Cierre el mes antes de ver rendimiento mensual.');
+        mostrarToast('El mes seleccionado no está cerrado. Cierre el mes antes de ver rendimiento mensual.', 'warning');
         return;
       }
 
@@ -2272,11 +2498,11 @@
       const selectedMonth = document.getElementById('monthYear').value;
 
       if(!selectedMonth){
-        alert('Seleccione un mes/año en los filtros de arriba.');
+        mostrarToast('Seleccione un mes/año en los filtros de arriba.', 'warning');
         return;
       }
       if(!valoresMensuales[selectedMonth]?.closed){
-        alert('El mes seleccionado no está cerrado. Cierre el mes antes de ver rendimiento histórico.');
+        mostrarToast('El mes seleccionado no está cerrado. Cierre el mes antes de ver rendimiento histórico.', 'warning');
         return;
       }
 
@@ -2340,25 +2566,71 @@
       const content = document.getElementById('comisionesPagadasContent');
 
       if(!modal){
-        alert('El modal de Comisiones Pagadas no está definido en HTML.');
+        mostrarToast('El modal de Comisiones Pagadas no está definido en HTML.', 'danger');
         return;
       }
 
       if(operacionesCerradas.length === 0){
         content.innerHTML = '<p>No hay comisiones pagadas registradas.</p>';
       } else{
-        content.innerHTML = '<table><thead><tr><th>Fecha Venta</th><th>Nombre</th><th>Moneda</th><th>Comisiones Pagadas</th></tr></thead><tbody>';
-        operacionesCerradas.forEach(op => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${escapeHTML(op.fecha)}</td>
-            <td>${escapeHTML(op.nombre)}</td>
-            <td>${escapeHTML(op.moneda)}</td>
-            <td class="number-cell">${formatCurrency(op.comisiones, op.moneda, 2)}</td>
-          `;
-          content.querySelector('tbody').appendChild(tr);
-        });
-        content.innerHTML += '</tbody></table>';
+        // Separar comisiones de compra y venta
+        const comisionesCompra = inversiones.map(inv => ({
+          fecha: inv.fecha,
+          nombre: inv.nombre,
+          moneda: inv.moneda,
+          comisiones: inv.comisionesPagadas
+        })).filter(c => c.comisiones > 0);
+
+        const comisionesVenta = operacionesCerradas.map(op => ({
+          fecha: op.fecha,
+          nombre: op.nombre,
+          moneda: op.moneda,
+          comisiones: op.comisiones
+        })).filter(c => c.comisiones > 0);
+
+        const totalCompra = comisionesCompra.reduce((acc, curr) => acc + curr.comisiones, 0);
+        const totalVenta = comisionesVenta.reduce((acc, curr) => acc + curr.comisiones, 0);
+        const total = totalCompra + totalVenta;
+
+        content.innerHTML = '<h4>Comisiones de Compra</h4>';
+        if(comisionesCompra.length === 0){
+          content.innerHTML += '<p>No hay comisiones de compra registradas.</p>';
+        } else{
+          content.innerHTML += '<table><thead><tr><th>Fecha</th><th>Nombre</th><th>Moneda</th><th>Comisiones Pagadas</th></tr></thead><tbody>';
+          comisionesCompra.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${escapeHTML(c.fecha)}</td>
+              <td>${escapeHTML(c.nombre)}</td>
+              <td>${escapeHTML(c.moneda)}</td>
+              <td class="number-cell">${formatCurrency(c.comisiones, c.moneda, 2)}</td>
+            `;
+            content.querySelector('tbody').appendChild(tr);
+          });
+          content.innerHTML += '</tbody></table>';
+          content.innerHTML += `<p><strong>Total Comisiones de Compra: ${formatCurrency(totalCompra, comisionesCompra[0].moneda, 2)}</strong></p>`;
+        }
+
+        content.innerHTML += '<h4>Comisiones de Venta</h4>';
+        if(comisionesVenta.length === 0){
+          content.innerHTML += '<p>No hay comisiones de venta registradas.</p>';
+        } else{
+          content.innerHTML += '<table><thead><tr><th>Fecha</th><th>Nombre</th><th>Moneda</th><th>Comisiones Pagadas</th></tr></thead><tbody>';
+          comisionesVenta.forEach(c => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${escapeHTML(c.fecha)}</td>
+              <td>${escapeHTML(c.nombre)}</td>
+              <td>${escapeHTML(c.moneda)}</td>
+              <td class="number-cell">${formatCurrency(c.comisiones, c.moneda, 2)}</td>
+            `;
+            content.querySelector('tbody').appendChild(tr);
+          });
+          content.innerHTML += '</tbody></table>';
+          content.innerHTML += `<p><strong>Total Comisiones de Venta: ${formatCurrency(totalVenta, comisionesVenta[0].moneda, 2)}</strong></p>`;
+        }
+
+        content.innerHTML += `<h4>Total Comisiones Pagadas: ${formatCurrency(total, comisionesCompra.length > 0 ? comisionesCompra[0].moneda : comisionesVenta.length > 0 ? comisionesVenta[0].moneda : 'PESOS', 2)}</h4>`;
       }
 
       modal.classList.add('visible');
@@ -2379,7 +2651,7 @@
 
       const inv = inversiones.find(inv => inv.id == id);
       if(!inv){
-        alert('Inversión no encontrada.');
+        mostrarToast('Inversión no encontrada.', 'danger');
         return;
       }
       document.getElementById('saleId').value = inv.id;
@@ -2421,19 +2693,19 @@
       const comisiones = parseFloat(document.getElementById('comisionesPagadasVenta').value) || 0;
 
       if(isNaN(cuotaparteVenta) || isNaN(precioVenta)){
-        alert('Valores inválidos en cuotaparte o precio de venta.');
+        mostrarToast('Valores inválidos en cuotaparte o precio de venta.', 'warning');
         return;
       }
       if(cuotaparteVenta <= 0 || precioVenta <= 0){
-        alert('Q Cuotaparte y Precio de Venta deben ser números positivos.');
+        mostrarToast('Q Cuotaparte y Precio de Venta deben ser números positivos.', 'warning');
         return;
       }
       if(!fechaVenta){
-        alert('Seleccione una fecha de venta.');
+        mostrarToast('Seleccione una fecha de venta.', 'warning');
         return;
       }
       if(cuotaparteVenta > inv.cuotaparte){
-        alert('No puedes vender más cuotapartes de las que posees.');
+        mostrarToast('No puedes vender más cuotapartes de las que posees.', 'warning');
         return;
       }
 
@@ -2475,6 +2747,7 @@
       actualizarTabla();
       cancelarVenta();
       mostrarOperacionesCerradas();
+      mostrarToast('Venta procesada exitosamente.', 'success');
       guardarDatos();
     }
     function cancelarVenta(){
@@ -2482,6 +2755,7 @@
       document.getElementById('ventaForm').reset();
       document.getElementById('saleId').value = -1;
     }
+
     function mostrarOperacionesCerradas(){
       const modal = document.getElementById('closedOperationsModal');
       const tbody = document.getElementById('closedOperationsBody');
@@ -2493,6 +2767,7 @@
         const pct = calculatePercentage(op.rendimiento, (op.cuotaparte * op.precioCompra));
         const tr = document.createElement('tr');
         tr.innerHTML = `
+          <td><input type="checkbox" class="selectClosedOp" value="${op.id}"></td>
           <td>${escapeHTML(op.fecha)}</td>
           <td>${escapeHTML(op.nombre)}</td>
           <td>${escapeHTML(op.moneda)}</td>
@@ -2527,10 +2802,32 @@
       modal.classList.add('visible');
       closeNav();
     }
+
     function cerrarModalOperaciones(){
       const modal = document.getElementById('closedOperationsModal');
       if(modal){
         modal.classList.remove('visible');
+      }
+    }
+
+    function seleccionarTodasOperaciones(checked){
+      const checkboxes = document.querySelectorAll('.selectClosedOp');
+      checkboxes.forEach(cb => cb.checked = checked);
+    }
+
+    function borrarOperacionesCerradas(){
+      const checkboxes = document.querySelectorAll('.selectClosedOp:checked');
+      if(checkboxes.length === 0){
+        mostrarToast('No has seleccionado ninguna operación para eliminar.', 'warning');
+        return;
+      }
+      if(confirm(`¿Estás seguro de eliminar ${checkboxes.length} operación(es) seleccionada(s)?`)){
+        const idsToDelete = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        operacionesCerradas = operacionesCerradas.filter(op => !idsToDelete.includes(op.id));
+        actualizarTabla();
+        mostrarOperacionesCerradas();
+        mostrarToast('Operaciones eliminadas exitosamente.', 'success');
+        guardarDatos();
       }
     }
 
@@ -2731,14 +3028,14 @@
 
     function generarLeyenda(elementId, labels, colors, data){
       const legendContainer = document.getElementById(elementId);
-      legendContainer.innerHTML = '<ul>';
+      legendContainer.innerHTML = '<ul style="list-style: none; padding: 0; margin: 0;">';
       labels.forEach((label, index) => {
         const percentage = ((data[index] / data.reduce((a, b) => a + b, 0)) * 100).toFixed(1) + '%';
         legendContainer.innerHTML += `
-          <li>
-            <span class="color-box" style="background-color:${colors[index]}"></span>
+          <li style="display: flex; align-items: center; margin-bottom: 0.5rem;">
+            <span class="color-box" style="background-color:${colors[index]}; width:15px; height:15px; display:inline-block; margin-right:0.5rem; border-radius:3px;"></span>
             <span class="label">${label}</span>
-            <span class="percentage">${percentage}</span>
+            <span class="percentage" style="margin-left:auto; font-weight:bold;">${percentage}</span>
           </li>
         `;
       });
@@ -2776,7 +3073,7 @@
       XLSX.utils.book_append_sheet(wb, ws, "localStorage");
       XLSX.writeFile(wb, "Portfolio_LocalStorage_Data.xlsx");
 
-      alert('Descarga completada correctamente.');
+      mostrarToast('Descarga completada correctamente.', 'success');
     }
 
     function subirLocalStorage(){
@@ -2795,7 +3092,7 @@
         try {
           workbook = XLSX.read(data, {type: 'binary'});
         } catch(error){
-          alert('Error al leer el archivo. Asegúrate de que el formato sea correcto.');
+          mostrarToast('Error al leer el archivo. Asegúrate de que el formato sea correcto.', 'danger');
           return;
         }
 
@@ -2804,7 +3101,7 @@
         const jsonData = XLSX.utils.sheet_to_json(worksheet, {header:1});
 
         if(jsonData.length < 2){
-          alert('El archivo no contiene datos.');
+          mostrarToast('El archivo no contiene datos.', 'warning');
           return;
         }
 
@@ -2817,13 +3114,13 @@
            headers[4] !== "ConfigTipo" ||
            headers[5] !== "ConfigMoneda" ||
            headers[6] !== "NextInvestmentId"){
-          alert('La plantilla no tiene el formato correcto. Debe incluir "Inversiones", "Operaciones Cerradas", "Valores Mensuales", "ConfigOrigen", "ConfigTipo", "ConfigMoneda", "NextInvestmentId".');
+          mostrarToast('La plantilla no tiene el formato correcto. Debe incluir "Inversiones", "Operaciones Cerradas", "Valores Mensuales", "ConfigOrigen", "ConfigTipo", "ConfigMoneda", "NextInvestmentId".', 'danger');
           return;
         }
 
         const dataRow = jsonData[1];
         if(dataRow.length < 7){
-          alert('La plantilla no tiene suficientes datos.');
+          mostrarToast('La plantilla no tiene suficientes datos.', 'danger');
           return;
         }
 
@@ -2851,63 +3148,59 @@
           actualizarTabla();
 
           cerrarConfiguracion();
-          alert('Subida completada correctamente.');
+          mostrarToast('Subida completada correctamente.', 'success');
           document.getElementById('uploadLocalStorageInput').value = '';
         } catch(error){
-          alert('Error al procesar los datos del archivo.');
+          mostrarToast('Error al procesar los datos del archivo.', 'danger');
         }
       };
       reader.onerror = function(){
-        alert('Error al leer el archivo.');
+        mostrarToast('Error al leer el archivo.', 'danger');
       };
       reader.readAsBinaryString(file);
+    }
+
+    /**************************************************************
+     * NOTIFICACIONES TOAST
+     **************************************************************/
+    function mostrarToast(mensaje, tipo='success'){
+      const toastContainer = document.getElementById('toastContainer');
+      const toastId = 'toast' + Date.now();
+      const toast = document.createElement('div');
+      toast.className = `toast align-items-center text-bg-${tipo} border-0`;
+      toast.role = 'alert';
+      toast.ariaLive = 'assertive';
+      toast.ariaAtomic = 'true';
+      toast.id = toastId;
+      toast.innerHTML = `
+        <div class="d-flex">
+          <div class="toast-body">
+            ${mensaje}
+          </div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+        </div>
+      `;
+      toastContainer.appendChild(toast);
+      const bsToast = new bootstrap.Toast(document.getElementById(toastId), { delay: 3000 });
+      bsToast.show();
     }
 
     /**************************************************************
      * INICIALIZAR
      **************************************************************/
     function inicializarDatos(){
-      if(inversiones.length === 0){
-        inversiones = [
-          {
-            id: nextInvestmentId++,
-            fecha: '2023-01-15',
-            nombre: 'AAPL - Apple Inc.',
-            moneda: 'DOLARES',
-            cuotaparte: 10.5,
-            precio: 150.75,
-            origen: 'EXTRANJERO',
-            tipo: 'ACCIONES',
-            comisionesPagadas: 0,
-            valorActual: 160
-          },
-          {
-            id: nextInvestmentId++,
-            fecha: '2023-02-20',
-            nombre: 'Bono Gobierno',
-            moneda: 'PESOS',
-            cuotaparte: 5000,
-            precio: 98.5,
-            origen: 'LOCAL',
-            tipo: 'BONOS',
-            comisionesPagadas: 0,
-            valorActual: 100
-          },
-          {
-            id: nextInvestmentId++,
-            fecha: '2023-03-10',
-            nombre: 'Bitcoin',
-            moneda: 'DOLARES',
-            cuotaparte: 0.5,
-            precio: 35000,
-            origen: 'EXTRANJERO',
-            tipo: 'CRIPTO',
-            comisionesPagadas: 0,
-            valorActual: 40000
-          }
-        ];
-        guardarDatos();
+      // No cargar inversiones de ejemplo
+      // Iniciar con configuraciones por defecto si están vacías
+      if(configOrigen.length === 0){
+        configOrigen = ["LOCAL","EXTRANJERO"];
       }
+      if(configTipo.length === 0){
+        configTipo = ["ACCIONES","BONOS","FONDOS MUTUOS","CRIPTO"];
+      }
+      if(configMoneda.length === 0){
+        configMoneda = ["PESOS","DOLARES"];
+      }
+      guardarDatos();
     }
     function inicializarApp(){
       cargarDatos();
